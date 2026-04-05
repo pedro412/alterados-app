@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Navigate } from 'react-router';
+import { Navigate, Link } from 'react-router';
 import { supabase } from '@/lib/supabase';
 import { useProtectedContext } from '@/hooks/useProtectedContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, XCircle, AlertTriangle, ShieldCheck, Clock } from 'lucide-react';
+import { CheckCircle, XCircle, AlertTriangle, ShieldCheck, Clock, MapPinned } from 'lucide-react';
 import type { Profile } from '@/types';
 
 interface PresidentWithChapter extends Omit<Profile, 'chapter'> {
@@ -133,8 +133,33 @@ export function AdminPanel() {
 
   return (
     <div className="pt-18 pb-20 px-4 max-w-lg mx-auto space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Panel de Administración</h1>
+          <p className="text-sm text-muted-foreground">
+            Gestión del club
+          </p>
+        </div>
+      </div>
+
+      {/* Admin quick actions */}
+      <Link to="/admin/chapters">
+        <Card className="hover:bg-accent transition-colors cursor-pointer">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <MapPinned className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="font-medium">Gestión de Capítulos</p>
+                <p className="text-sm text-muted-foreground">Agregar, editar o eliminar capítulos</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </Link>
+
+      {/* Presidents verification */}
       <div>
-        <h1 className="text-2xl font-bold">Verificacion de Presidentes</h1>
+        <h2 className="text-lg font-bold mb-1">Verificación de Presidentes</h2>
         <p className="text-sm text-muted-foreground">
           Aprueba o rechaza a quienes se registraron como presidente
         </p>

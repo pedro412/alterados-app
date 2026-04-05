@@ -15,6 +15,7 @@ import { MemberRegistration } from '@/routes/MemberRegistration';
 import { Profile } from '@/routes/Profile';
 import { MemberCredential } from '@/routes/MemberCredential';
 import { Birthdays } from '@/routes/Birthdays';
+import { AdminChapters } from '@/routes/AdminChapters';
 
 function ProtectedLayout() {
   const auth = useAuth();
@@ -39,6 +40,7 @@ export default function App() {
         <Route element={<ProtectedLayout />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/admin/chapters" element={<AdminChapters />} />
           <Route path="/chapters" element={<ChapterList />} />
           <Route path="/chapters/:id" element={<ChapterDetail />} />
           <Route path="/chapters/:id/settings" element={<ChapterSettings />} />

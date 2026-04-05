@@ -12,7 +12,7 @@ import { ROLE_LABELS, MEMBER_TYPE_LABELS, BLOOD_TYPES } from '@/types';
 import type { Role, MemberType, BloodType } from '@/types';
 
 export function Profile() {
-  const { profile, refreshProfile } = useProtectedContext();
+  const { profile, session, refreshProfile } = useProtectedContext();
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [pendingPhoto, setPendingPhoto] = useState<File | null>(null);
@@ -160,6 +160,16 @@ export function Profile() {
                 value={form.full_name}
                 onChange={(e) => setForm((prev) => ({ ...prev, full_name: e.target.value }))}
                 required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email">Correo electrónico</Label>
+              <Input
+                id="email"
+                value={session?.user?.email || ''}
+                disabled
+                className="bg-muted"
               />
             </div>
 

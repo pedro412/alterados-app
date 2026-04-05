@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { ROLE_LABELS, MEMBER_TYPE_LABELS, BLOOD_TYPES } from '@/types';
+import { MEMBER_TYPE_LABELS, BLOOD_TYPES } from '@/types';
 import type { Role, MemberType, BloodType } from '@/types';
 
 export function Profile() {
@@ -59,6 +59,7 @@ export function Profile() {
       }
     }
 
+    if (!profile) return;
     const roleChanged = form.role !== profile.role;
     const newRole = form.role as Role;
 
@@ -195,7 +196,7 @@ export function Profile() {
                 <Select
                   id="role"
                   value={form.role}
-                  onChange={(e) => setForm((prev) => ({ ...prev, role: e.target.value }))}
+                  onChange={(e) => setForm((prev) => ({ ...prev, role: e.target.value as Role }))}
                 >
                   {selfRoles.map(([value, label]) => (
                     <option key={value} value={value}>

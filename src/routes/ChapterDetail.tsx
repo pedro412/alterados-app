@@ -10,7 +10,7 @@ import { Select } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
 import { MemberCard } from '@/components/MemberCard';
 import { ROLE_LABELS, MEMBER_TYPE_LABELS } from '@/types';
-import type { Chapter, Profile, Role, MemberType } from '@/types';
+import type { Chapter, Profile } from '@/types';
 
 export function ChapterDetail() {
   const { id } = useParams();

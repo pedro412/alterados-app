@@ -7,7 +7,7 @@ import { Select } from '@/components/ui/select';
 import { MemberCard } from '@/components/MemberCard';
 import type { Chapter, Profile } from '@/types';
 
-interface ProfileWithChapter extends Profile {
+interface ProfileWithChapter extends Omit<Profile, 'chapter'> {
   chapter: { name: string } | null;
 }
 
@@ -158,7 +158,7 @@ export function Birthdays() {
           memberBirthdays.map((m) => (
             <Card key={m.id}>
               <CardContent className="p-4 flex items-center justify-between">
-                <MemberCard member={m}>
+                <MemberCard member={m as unknown as Profile}>
                   <span className="text-xs text-muted-foreground">
                     {m.chapter?.name || 'Sin capítulo'}
                   </span>

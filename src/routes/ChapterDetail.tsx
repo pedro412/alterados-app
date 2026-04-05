@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router';
-import { MapPin, Calendar, Settings, UserPlus, Droplets, Phone, CreditCard } from 'lucide-react';
+import { MapPin, Calendar, Settings, UserPlus, Droplets, Phone, CreditCard, Trash2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useProtectedContext } from '@/hooks/useProtectedContext';
 import { Card, CardContent } from '@/components/ui/card';
@@ -72,6 +72,21 @@ export function ChapterDetail() {
       await fetchData();
     }
     setTimeout(() => setMessage(null), 2000);
+  }
+
+  async function handleDeleteMember(memberId: string, memberName: string) {
+    if (!confirm(`¿Eliminar a "${memberName}"? Esta acción es irreversible y liberará su correo electrónico.`)) return;
+
+    setMessage(null);
+    const { error } = await supabase.rpc('delete_user', { user_id: memberId });
+
+    if (error) {
+      setMessage({ type: 'error', text: 'Error al eliminar miembro' });
+    } else {
+      setMessage({ type: 'success', text: `${memberName} eliminado` });
+      await fetchData();
+    }
+    setTimeout(() => setMessage(null), 3000);
   }
 
   async function handleAssign(memberId: string) {
@@ -299,15 +314,27 @@ export function ChapterDetail() {
                           <option value="inactive">Inactivo</option>
                         </Select>
                       </div>
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        className="w-full"
-                        onClick={() => handleUnassign(member.id)}
-                      >
-                        Desasignar del capítulo
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => handleUnassign(member.id)}
+                        >
+                          Desasignar
+                        </Button>
+                        {isAdmin && (
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDeleteMember(member.id, member.full_name)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   )}
                 </CardContent>
@@ -327,16 +354,30 @@ export function ChapterDetail() {
           <div className="space-y-3">
             {unassigned.map((member) => (
               <Card key={member.id}>
-                <CardContent className="p-4 flex items-center justify-between">
-                  <MemberCard member={member} />
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleAssign(member.id)}
-                  >
-                    <UserPlus className="h-4 w-4 mr-1" />
-                    Asignar
-                  </Button>
+                <CardContent className="p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <MemberCard member={member} />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => handleAssign(member.id)}
+                    >
+                      <UserPlus className="h-4 w-4 mr-1" />
+                      Asignar
+                    </Button>
+                    {isAdmin && (
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleDeleteMember(member.id, member.full_name)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             ))}

@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, AlertTriangle, ShieldCheck, Clock } from 'lucide-react';
 import type { Profile } from '@/types';
 
-interface PresidentWithChapter extends Profile {
+interface PresidentWithChapter extends Omit<Profile, 'chapter'> {
   chapter: { id: string; name: string } | null;
 }
 

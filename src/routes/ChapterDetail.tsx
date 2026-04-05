@@ -17,6 +17,7 @@ export function ChapterDetail() {
   const { profile: currentUser, isAdmin, isPresident } = useProtectedContext();
   const [chapter, setChapter] = useState<Chapter | null>(null);
   const [members, setMembers] = useState<Profile[]>([]);
+  const [unassigned, setUnassigned] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -24,27 +25,54 @@ export function ChapterDetail() {
   const canManage =
     isAdmin || (isPresident && currentUser?.chapter_id === id);
 
-  useEffect(() => {
-    async function fetchData() {
-      const [chapterRes, membersRes] = await Promise.all([
-        supabase.from('chapters').select('*').eq('id', id!).single(),
-        supabase
-          .from('profiles')
-          .select('*')
-          .eq('chapter_id', id!)
-          .order('full_name'),
-      ]);
+  async function fetchData() {
+    const [chapterRes, membersRes] = await Promise.all([
+      supabase.from('chapters').select('*').eq('id', id!).single(),
+      supabase
+        .from('profiles')
+        .select('*')
+        .eq('chapter_id', id!)
+        .order('full_name'),
+    ]);
 
-      if (chapterRes.error) console.error('Error fetching chapter:', chapterRes.error);
-      else setChapter(chapterRes.data as Chapter);
+    if (chapterRes.error) console.error('Error fetching chapter:', chapterRes.error);
+    else setChapter(chapterRes.data as Chapter);
 
-      if (membersRes.error) console.error('Error fetching members:', membersRes.error);
-      else setMembers(membersRes.data as Profile[]);
+    if (membersRes.error) console.error('Error fetching members:', membersRes.error);
+    else setMembers(membersRes.data as Profile[]);
 
-      setLoading(false);
+    // Fetch unassigned members if user can manage
+    if (canManage) {
+      const { data } = await supabase
+        .from('profiles')
+        .select('*')
+        .is('chapter_id', null)
+        .order('full_name');
+      if (data) setUnassigned(data as Profile[]);
     }
+
+    setLoading(false);
+  }
+
+  useEffect(() => {
     fetchData();
   }, [id]);
+
+  async function handleAssign(memberId: string) {
+    setMessage(null);
+    const { error } = await supabase
+      .from('profiles')
+      .update({ chapter_id: id })
+      .eq('id', memberId);
+
+    if (error) {
+      setMessage({ type: 'error', text: 'Error al asignar miembro' });
+    } else {
+      setMessage({ type: 'success', text: 'Miembro asignado al capítulo' });
+      await fetchData();
+    }
+    setTimeout(() => setMessage(null), 2000);
+  }
 
   async function handleUpdate(memberId: string, field: string, value: string) {
     setMessage(null);
@@ -263,6 +291,33 @@ export function ChapterDetail() {
           })}
         </div>
       </div>
+
+      {/* Unassigned members */}
+      {canManage && unassigned.length > 0 && (
+        <div className="space-y-3">
+          <h2 className="text-lg font-semibold">Sin capítulo ({unassigned.length})</h2>
+          <p className="text-sm text-muted-foreground">
+            Miembros que no pertenecen a ningún capítulo
+          </p>
+          <div className="space-y-3">
+            {unassigned.map((member) => (
+              <Card key={member.id}>
+                <CardContent className="p-4 flex items-center justify-between">
+                  <MemberCard member={member} />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleAssign(member.id)}
+                  >
+                    <UserPlus className="h-4 w-4 mr-1" />
+                    Asignar
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

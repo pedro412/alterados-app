@@ -1,5 +1,4 @@
 export type Role =
-  | 'admin'
   | 'president'
   | 'vice_president'
   | 'secretary'
@@ -38,6 +37,7 @@ export interface Profile {
   profile_photo_url: string | null;
   is_active: boolean;
   is_verified: boolean;
+  is_admin: boolean;
   joined_at: string;
   created_at: string;
   updated_at: string;
@@ -46,7 +46,6 @@ export interface Profile {
 }
 
 export const ROLE_LABELS: Record<Role, string> = {
-  admin: 'Administrador',
   president: 'Presidente',
   vice_president: 'Vicepresidente',
   secretary: 'Secretario',

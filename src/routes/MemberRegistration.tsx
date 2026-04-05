@@ -223,9 +223,7 @@ export function MemberRegistration() {
                   value={form.role}
                   onChange={(e) => setForm((prev) => ({ ...prev, role: e.target.value as Role }))}
                 >
-                  {Object.entries(ROLE_LABELS)
-                    .filter(([key]) => key !== 'admin')
-                    .map(([value, label]) => (
+                  {Object.entries(ROLE_LABELS).map(([value, label]) => (
                       <option key={value} value={value}>
                         {label}
                       </option>

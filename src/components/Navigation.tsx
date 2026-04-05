@@ -10,7 +10,7 @@ interface NavigationProps {
 
 export function Navigation({ profile, onLogout }: NavigationProps) {
   const location = useLocation();
-  const isAdmin = profile?.role === 'admin';
+  const isAdmin = profile?.is_admin === true;
   const isPresident = profile?.role === 'president' && profile?.is_verified === true;
 
   const navItems = [

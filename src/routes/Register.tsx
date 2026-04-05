@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { ROLE_LABELS } from '@/types';
 import type { Chapter } from '@/types';
 
 export function Register() {
@@ -126,12 +127,13 @@ export function Register() {
                 onChange={(e) => setRole(e.target.value)}
                 required
               >
-                <option value="member">Miembro</option>
-                <option value="president">Presidente</option>
+                {Object.entries(ROLE_LABELS).map(([value, label]) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
               </Select>
               {role === 'president' && (
                 <p className="text-xs text-amber-600">
-                  Tu registro como presidente sera verificado por un administrador.
+                  Tu registro como presidente será verificado por un administrador.
                 </p>
               )}
             </div>

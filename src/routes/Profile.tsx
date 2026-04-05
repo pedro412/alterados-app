@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { MEMBER_TYPE_LABELS, BLOOD_TYPES } from '@/types';
+import { ROLE_LABELS, MEMBER_TYPE_LABELS, BLOOD_TYPES } from '@/types';
 import type { Role, MemberType, BloodType } from '@/types';
 
 export function Profile() {
@@ -31,8 +31,6 @@ export function Profile() {
   });
 
   if (!profile) return null;
-
-  const isAdmin = profile.role === 'admin';
 
   function handlePhotoSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -103,11 +101,7 @@ export function Profile() {
     setSaving(false);
   }
 
-  // Roles available for self-selection (no admin)
-  const selfRoles: [string, string][] = [
-    ['member', 'Miembro'],
-    ['president', 'Presidente'],
-  ];
+  const selfRoles = Object.entries(ROLE_LABELS);
 
   return (
     <div className="pt-18 pb-20 px-4 max-w-lg mx-auto space-y-4">
@@ -189,42 +183,40 @@ export function Profile() {
               </div>
             </div>
 
-            {/* Role - only for non-admin */}
-            {!isAdmin && (
-              <div className="space-y-2">
-                <Label htmlFor="role">Rol en el club</Label>
-                <Select
-                  id="role"
-                  value={form.role}
-                  onChange={(e) => setForm((prev) => ({ ...prev, role: e.target.value as Role }))}
-                >
-                  {selfRoles.map(([value, label]) => (
-                    <option key={value} value={value}>
-                      {label}
-                    </option>
-                  ))}
-                </Select>
-                {form.role === 'president' && form.role !== profile.role && (
-                  <p className="text-xs text-amber-600">
-                    Tu solicitud de presidente sera verificada por un administrador.
-                  </p>
-                )}
-                {profile.role === 'president' && (
-                  <div className="flex items-center gap-2 mt-1">
-                    <Badge
-                      variant={profile.is_verified ? 'default' : 'outline'}
-                      className={
-                        profile.is_verified
-                          ? 'bg-green-100 text-green-700 border-green-200'
-                          : 'text-amber-600 border-amber-300'
-                      }
-                    >
-                      {profile.is_verified ? 'Verificado' : 'Pendiente de verificacion'}
-                    </Badge>
-                  </div>
-                )}
-              </div>
-            )}
+            {/* Rol en el club */}
+            <div className="space-y-2">
+              <Label htmlFor="role">Rol en el club</Label>
+              <Select
+                id="role"
+                value={form.role}
+                onChange={(e) => setForm((prev) => ({ ...prev, role: e.target.value as Role }))}
+              >
+                {selfRoles.map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </Select>
+              {form.role === 'president' && form.role !== profile.role && (
+                <p className="text-xs text-amber-600">
+                  Tu solicitud de presidente será verificada por un administrador.
+                </p>
+              )}
+              {profile.role === 'president' && (
+                <div className="flex items-center gap-2 mt-1">
+                  <Badge
+                    variant={profile.is_verified ? 'default' : 'outline'}
+                    className={
+                      profile.is_verified
+                        ? 'bg-green-100 text-green-700 border-green-200'
+                        : 'text-amber-600 border-amber-300'
+                    }
+                  >
+                    {profile.is_verified ? 'Verificado' : 'Pendiente de verificación'}
+                  </Badge>
+                </div>
+              )}
+            </div>
 
             <div className="space-y-2">
               <Label htmlFor="member_type">Tipo de miembro</Label>

@@ -75,7 +75,7 @@ export function useAuth() {
     }
   }
 
-  const isAdmin = profile?.role === 'admin';
+  const isAdmin = profile?.is_admin === true;
   const isPresident = profile?.role === 'president' && profile?.is_verified === true;
 
   return {

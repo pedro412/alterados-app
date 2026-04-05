@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Navigate, useNavigate } from 'react-router';
 import { ArrowLeft, Plus, Pencil, Trash2, MapPin } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { uploadImage } from '@/lib/cloudinary';
 import { useProtectedContext } from '@/hooks/useProtectedContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,8 +20,10 @@ export function AdminChapters() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  const emptyForm = { name: '', city: '', state: '', foundation_date: '', expected_members: 10 };
+  const emptyForm = { name: '', city: '', state: '', foundation_date: '', expected_members: 10, logo_url: '' };
   const [form, setForm] = useState(emptyForm);
+  const [pendingLogo, setPendingLogo] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
   useEffect(() => {
     fetchChapters();
@@ -46,7 +49,10 @@ export function AdminChapters() {
       state: chapter.state || '',
       foundation_date: chapter.foundation_date || '',
       expected_members: chapter.expected_members,
+      logo_url: chapter.logo_url || '',
     });
+    setPendingLogo(null);
+    setLogoPreview(null);
   }
 
   function startNew() {
@@ -59,6 +65,15 @@ export function AdminChapters() {
     setEditingId(null);
     setShowNew(false);
     setForm(emptyForm);
+    setPendingLogo(null);
+    setLogoPreview(null);
+  }
+
+  function handleLogoSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPendingLogo(file);
+    setLogoPreview(URL.createObjectURL(file));
   }
 
   async function handleSave(e: React.FormEvent) {
@@ -66,12 +81,24 @@ export function AdminChapters() {
     setSaving(true);
     setMessage(null);
 
+    let logoUrl = form.logo_url;
+    if (pendingLogo) {
+      try {
+        logoUrl = await uploadImage(pendingLogo);
+      } catch {
+        setMessage({ type: 'error', text: 'Error al subir el logo' });
+        setSaving(false);
+        return;
+      }
+    }
+
     const data = {
       name: form.name,
       city: form.city || null,
       state: form.state || null,
       foundation_date: form.foundation_date || null,
       expected_members: form.expected_members,
+      logo_url: logoUrl || null,
     };
 
     if (editingId) {
@@ -127,6 +154,29 @@ export function AdminChapters() {
     <Card>
       <CardContent className="p-4">
         <form onSubmit={handleSave} className="space-y-3">
+          {/* Logo */}
+          <div className="space-y-2">
+            <Label>Logo</Label>
+            <div className="flex items-center gap-4">
+              {(logoPreview || form.logo_url) ? (
+                <img
+                  src={logoPreview || form.logo_url}
+                  alt="Logo"
+                  className="h-14 w-14 rounded-full object-cover"
+                />
+              ) : (
+                <div className="h-14 w-14 rounded-full bg-secondary flex items-center justify-center text-lg font-bold text-muted-foreground">
+                  {form.name.charAt(0) || '?'}
+                </div>
+              )}
+              <div>
+                <Input type="file" accept="image/*" onChange={handleLogoSelect} />
+                {pendingLogo && (
+                  <p className="text-xs text-amber-600 mt-1">Se subirá al guardar</p>
+                )}
+              </div>
+            </div>
+          </div>
           <div className="space-y-2">
             <Label htmlFor="ch-name">Nombre *</Label>
             <Input

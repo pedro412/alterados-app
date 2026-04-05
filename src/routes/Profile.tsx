@@ -61,6 +61,14 @@ export function Profile() {
     const roleChanged = form.role !== profile.role;
     const newRole = form.role as Role;
 
+    // Warn president about losing control
+    if (roleChanged && profile.role === 'president' && profile.is_verified && newRole !== 'president') {
+      if (!confirm('Al cambiar tu rol dejarás de tener control sobre tu capítulo. ¿Estás seguro?')) {
+        setSaving(false);
+        return;
+      }
+    }
+
     const updateData: Record<string, unknown> = {
       full_name: form.full_name,
       nickname: form.nickname || null,

@@ -43,7 +43,7 @@ export function AdminRoute({ children, profile, loading, isAuthenticated }: Admi
     return <Navigate to="/login" replace />;
   }
 
-  if (profile?.role !== 'admin') {
+  if (!profile?.is_admin) {
     return <Navigate to="/" replace />;
   }
 

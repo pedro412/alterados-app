@@ -58,6 +58,22 @@ export function ChapterDetail() {
     fetchData();
   }, [id]);
 
+  async function handleUnassign(memberId: string) {
+    setMessage(null);
+    const { error } = await supabase
+      .from('profiles')
+      .update({ chapter_id: null })
+      .eq('id', memberId);
+
+    if (error) {
+      setMessage({ type: 'error', text: 'Error al desasignar miembro' });
+    } else {
+      setMessage({ type: 'success', text: 'Miembro desasignado del capítulo' });
+      await fetchData();
+    }
+    setTimeout(() => setMessage(null), 2000);
+  }
+
   async function handleAssign(memberId: string) {
     setMessage(null);
     const { error } = await supabase
@@ -283,6 +299,15 @@ export function ChapterDetail() {
                           <option value="inactive">Inactivo</option>
                         </Select>
                       </div>
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="w-full"
+                        onClick={() => handleUnassign(member.id)}
+                      >
+                        Desasignar del capítulo
+                      </Button>
                     </div>
                   )}
                 </CardContent>

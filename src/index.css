@@ -42,3 +42,61 @@
       sans-serif;
   }
 }
+
+/* Credential card — fluid sizing via container queries */
+.credential-card {
+  container-type: inline-size;
+  width: 100%;
+  border-radius: 8px;
+  box-shadow:
+    0 4px 24px rgba(0,0,0,0.4),
+    0 1px 3px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+/* Logos — larger */
+.credential-logo-lg {
+  width: clamp(28px, 12cqi, 56px);
+  height: clamp(28px, 12cqi, 56px);
+}
+
+/* Photo — wider, fills height */
+.credential-photo-lg {
+  width: clamp(60px, 26cqi, 120px);
+}
+
+/* QR — larger for horizontal layout */
+.credential-qr-lg {
+  width: clamp(80px, 32cqi, 160px) !important;
+  height: clamp(80px, 32cqi, 160px) !important;
+}
+
+/* Print: fixed physical size */
+@media print {
+  .credential-card {
+    width: 85.6mm !important;
+    height: 54mm !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+}
+
+@media print {
+  .no-print,
+  header,
+  nav {
+    display: none !important;
+  }
+  body {
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .credential-print {
+    display: flex !important;
+  }
+  @page {
+    size: auto;
+    margin: 10mm;
+  }
+}

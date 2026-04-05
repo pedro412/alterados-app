@@ -17,8 +17,9 @@ export function ChapterSettings() {
   const [chapter, setChapter] = useState<Chapter | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [pendingLogo, setPendingLogo] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     name: '',
@@ -58,24 +59,29 @@ export function ChapterSettings() {
     fetchChapter();
   }, [id]);
 
-  async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleLogoSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    setUploading(true);
-    try {
-      const url = await uploadImage(file);
-      setForm((prev) => ({ ...prev, logo_url: url }));
-    } catch {
-      setMessage({ type: 'error', text: 'Error al subir imagen' });
-    }
-    setUploading(false);
+    setPendingLogo(file);
+    setLogoPreview(URL.createObjectURL(file));
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
     setMessage(null);
+
+    let logoUrl = form.logo_url;
+
+    if (pendingLogo) {
+      try {
+        logoUrl = await uploadImage(pendingLogo);
+      } catch {
+        setMessage({ type: 'error', text: 'Error al subir el logo' });
+        setSaving(false);
+        return;
+      }
+    }
 
     const { error } = await supabase
       .from('chapters')
@@ -85,13 +91,16 @@ export function ChapterSettings() {
         state: form.state || null,
         foundation_date: form.foundation_date || null,
         expected_members: form.expected_members,
-        logo_url: form.logo_url || null,
+        logo_url: logoUrl || null,
       })
       .eq('id', id!);
 
     if (error) {
       setMessage({ type: 'error', text: 'Error al guardar cambios' });
     } else {
+      setPendingLogo(null);
+      setLogoPreview(null);
+      setForm((prev) => ({ ...prev, logo_url: logoUrl }));
       setMessage({ type: 'success', text: 'Cambios guardados' });
     }
     setSaving(false);
@@ -148,9 +157,9 @@ export function ChapterSettings() {
             <div className="space-y-2">
               <Label>Logo</Label>
               <div className="flex items-center gap-4">
-                {form.logo_url ? (
+                {(logoPreview || form.logo_url) ? (
                   <img
-                    src={form.logo_url}
+                    src={logoPreview || form.logo_url}
                     alt="Logo"
                     className="h-16 w-16 rounded-full object-cover"
                   />
@@ -163,10 +172,11 @@ export function ChapterSettings() {
                   <Input
                     type="file"
                     accept="image/*"
-                    onChange={handleLogoUpload}
-                    disabled={uploading}
+                    onChange={handleLogoSelect}
                   />
-                  {uploading && <p className="text-xs text-muted-foreground mt-1">Subiendo...</p>}
+                  {pendingLogo && (
+                    <p className="text-xs text-amber-600 mt-1">Se subirá al guardar cambios</p>
+                  )}
                 </div>
               </div>
             </div>

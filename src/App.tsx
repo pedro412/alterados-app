@@ -13,6 +13,8 @@ import { ChapterSettingsRedirect } from '@/routes/ChapterSettingsRedirect';
 import { MembersRedirect } from '@/routes/MembersRedirect';
 import { MemberRegistration } from '@/routes/MemberRegistration';
 import { Profile } from '@/routes/Profile';
+import { MemberCredential } from '@/routes/MemberCredential';
+import { Birthdays } from '@/routes/Birthdays';
 
 function ProtectedLayout() {
   const auth = useAuth();
@@ -44,6 +46,8 @@ export default function App() {
           <Route path="/members" element={<MembersRedirect />} />
           <Route path="/members/new" element={<MemberRegistration />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/members/:id/credential" element={<MemberCredential />} />
+          <Route path="/birthdays" element={<Birthdays />} />
         </Route>
       </Routes>
     </BrowserRouter>

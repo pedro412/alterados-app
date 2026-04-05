@@ -14,8 +14,9 @@ import type { Role, MemberType, BloodType } from '@/types';
 export function Profile() {
   const { profile, refreshProfile } = useProtectedContext();
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [pendingPhoto, setPendingPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     full_name: profile?.full_name || '',
@@ -33,17 +34,11 @@ export function Profile() {
 
   const isAdmin = profile.role === 'admin';
 
-  async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  function handlePhotoSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    setUploading(true);
-    try {
-      const url = await uploadImage(file);
-      setForm((prev) => ({ ...prev, profile_photo_url: url }));
-    } catch {
-      setMessage({ type: 'error', text: 'Error al subir imagen' });
-    }
-    setUploading(false);
+    setPendingPhoto(file);
+    setPhotoPreview(URL.createObjectURL(file));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -51,10 +46,22 @@ export function Profile() {
     setSaving(true);
     setMessage(null);
 
+    let photoUrl = form.profile_photo_url;
+
+    // Upload photo to Cloudinary only on save
+    if (pendingPhoto) {
+      try {
+        photoUrl = await uploadImage(pendingPhoto);
+      } catch {
+        setMessage({ type: 'error', text: 'Error al subir la foto' });
+        setSaving(false);
+        return;
+      }
+    }
+
     const roleChanged = form.role !== profile.role;
     const newRole = form.role as Role;
 
-    // If changing to president, set is_verified to false (needs admin approval)
     const updateData: Record<string, unknown> = {
       full_name: form.full_name,
       nickname: form.nickname || null,
@@ -63,7 +70,7 @@ export function Profile() {
       blood_type: form.blood_type || null,
       emergency_contact_name: form.emergency_contact_name || null,
       emergency_contact_phone: form.emergency_contact_phone || null,
-      profile_photo_url: form.profile_photo_url || null,
+      profile_photo_url: photoUrl || null,
       role: newRole,
     };
 
@@ -79,10 +86,13 @@ export function Profile() {
     if (error) {
       setMessage({ type: 'error', text: 'Error al guardar cambios' });
     } else {
+      setPendingPhoto(null);
+      setPhotoPreview(null);
+      setForm((prev) => ({ ...prev, profile_photo_url: photoUrl }));
       if (roleChanged && newRole === 'president') {
         setMessage({
           type: 'success',
-          text: 'Datos guardados. Tu solicitud de presidente sera verificada por un administrador.',
+          text: 'Datos guardados. Tu solicitud de presidente será verificada por un administrador.',
         });
       } else {
         setMessage({ type: 'success', text: 'Datos guardados' });
@@ -124,9 +134,9 @@ export function Profile() {
             <div className="space-y-2">
               <Label>Foto de perfil</Label>
               <div className="flex items-center gap-4">
-                {form.profile_photo_url ? (
+                {(photoPreview || form.profile_photo_url) ? (
                   <img
-                    src={form.profile_photo_url}
+                    src={photoPreview || form.profile_photo_url}
                     alt="Foto"
                     className="h-16 w-16 rounded-full object-cover"
                   />
@@ -140,8 +150,10 @@ export function Profile() {
                   </div>
                 )}
                 <div>
-                  <Input type="file" accept="image/*" onChange={handlePhotoUpload} disabled={uploading} />
-                  {uploading && <p className="text-xs text-muted-foreground mt-1">Subiendo...</p>}
+                  <Input type="file" accept="image/*" onChange={handlePhotoSelect} />
+                  {pendingPhoto && (
+                    <p className="text-xs text-amber-600 mt-1">Se subirá al guardar cambios</p>
+                  )}
                 </div>
               </div>
             </div>

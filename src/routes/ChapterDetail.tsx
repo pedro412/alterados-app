@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router';
-import { MapPin, Calendar, Settings, UserPlus, Droplets, Phone } from 'lucide-react';
+import { MapPin, Calendar, Settings, UserPlus, Droplets, Phone, CreditCard } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useProtectedContext } from '@/hooks/useProtectedContext';
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
+import { MemberCard } from '@/components/MemberCard';
 import { ROLE_LABELS, MEMBER_TYPE_LABELS } from '@/types';
 import type { Chapter, Profile, Role, MemberType } from '@/types';
 
@@ -169,46 +170,26 @@ export function ChapterDetail() {
               <Card key={member.id}>
                 <CardContent className="p-4 space-y-3">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      {member.profile_photo_url ? (
-                        <img
-                          src={member.profile_photo_url}
-                          alt={member.full_name}
-                          className="h-10 w-10 rounded-full object-cover"
-                        />
-                      ) : (
-                        <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center text-sm font-medium text-muted-foreground">
-                          {member.full_name
-                            .split(' ')
-                            .map((n) => n[0])
-                            .slice(0, 2)
-                            .join('')}
-                        </div>
-                      )}
-                      <div>
-                        <p className="font-medium">
-                          {member.full_name}
-                          {member.nickname && (
-                            <span className="text-muted-foreground font-normal">
-                              {' '}
-                              "{member.nickname}"
-                            </span>
-                          )}
-                        </p>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <Badge variant="secondary">{ROLE_LABELS[member.role]}</Badge>
-                          <Badge variant="outline">{MEMBER_TYPE_LABELS[member.member_type]}</Badge>
-                        </div>
-                      </div>
-                    </div>
-                    {canEdit && (
-                      <button
-                        onClick={() => setEditingId(isEditing ? null : member.id)}
-                        className="text-xs text-primary hover:underline cursor-pointer"
+                    <MemberCard member={member}>
+                      <Badge variant="outline">{MEMBER_TYPE_LABELS[member.member_type]}</Badge>
+                    </MemberCard>
+                    <div className="flex items-center gap-2">
+                      <Link
+                        to={`/members/${member.id}/credential`}
+                        className="text-xs text-muted-foreground hover:text-primary cursor-pointer"
+                        onClick={(e) => e.stopPropagation()}
                       >
-                        {isEditing ? 'Cerrar' : 'Editar'}
-                      </button>
-                    )}
+                        <CreditCard className="h-4 w-4" />
+                      </Link>
+                      {canEdit && (
+                        <button
+                          onClick={() => setEditingId(isEditing ? null : member.id)}
+                          className="text-xs text-primary hover:underline cursor-pointer"
+                        >
+                          {isEditing ? 'Cerrar' : 'Editar'}
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   {/* Quick info */}

@@ -69,6 +69,11 @@ export function Login() {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? 'Entrando...' : 'Entrar'}
             </Button>
+            <div className="text-center">
+              <Link to="/forgot-password" className="text-sm text-primary underline">
+                ¿Olvidaste tu contraseña?
+              </Link>
+            </div>
           </form>
         </CardContent>
         <CardFooter className="justify-center">

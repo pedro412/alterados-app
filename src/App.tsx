@@ -18,6 +18,7 @@ import { Birthdays } from '@/routes/Birthdays';
 import { AdminChapters } from '@/routes/AdminChapters';
 import { ForgotPassword } from '@/routes/ForgotPassword';
 import { ResetPassword } from '@/routes/ResetPassword';
+import { PublicProfile } from '@/routes/PublicProfile';
 
 function ProtectedLayout() {
   const auth = useAuth();
@@ -39,6 +40,7 @@ export default function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/profile/:id" element={<PublicProfile />} />
 
         {/* Protected routes */}
         <Route element={<ProtectedLayout />}>

@@ -30,6 +30,8 @@ CREATE TABLE public.profiles (
   emergency_contact_phone text,
   profile_photo_url text,
   is_active boolean DEFAULT true,
+  is_verified boolean DEFAULT false,
+  is_admin boolean DEFAULT false,
   joined_at timestamptz DEFAULT now(),
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now()
@@ -160,3 +162,18 @@ CREATE TRIGGER chapters_updated_at
 CREATE TRIGGER profiles_updated_at
   BEFORE UPDATE ON public.profiles
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at();
+
+-- ============================================
+-- RPC: eliminar usuario (admin only)
+-- ============================================
+
+CREATE OR REPLACE FUNCTION public.delete_user(user_id uuid)
+RETURNS void AS $$
+BEGIN
+  IF NOT public.is_admin() THEN
+    RAISE EXCEPTION 'Solo administradores pueden eliminar usuarios';
+  END IF;
+
+  DELETE FROM auth.users WHERE id = user_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

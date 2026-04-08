@@ -14,7 +14,7 @@ interface PresidentWithChapter extends Omit<Profile, 'chapter'> {
 }
 
 export function AdminPanel() {
-  const { isAdmin } = useProtectedContext();
+  const { isAdmin, profile: currentUser } = useProtectedContext();
   const [presidents, setPresidents] = useState<PresidentWithChapter[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
@@ -243,12 +243,16 @@ export function AdminPanel() {
           <div className="space-y-2">
             {adminResults.map((member) => {
               const isToggling = togglingAdminId === member.id;
+              const isSelf = member.id === currentUser?.id;
               return (
                 <Card key={member.id}>
                   <CardContent className="p-3 flex items-center justify-between gap-3">
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <p className="font-medium truncate">{member.full_name}</p>
+                        <p className="font-medium truncate">
+                          {member.full_name}
+                          {isSelf && <span className="text-muted-foreground font-normal"> (tú)</span>}
+                        </p>
                         {member.is_admin && (
                           <Badge className="bg-purple-100 text-purple-700 border-purple-200 shrink-0">
                             Admin
@@ -260,25 +264,29 @@ export function AdminPanel() {
                         {member.nickname && ` · "${member.nickname}"`}
                       </p>
                     </div>
-                    <Button
-                      size="sm"
-                      variant={member.is_admin ? 'destructive' : 'default'}
-                      onClick={() => handleToggleAdmin(member)}
-                      disabled={isToggling}
-                      className="shrink-0"
-                    >
-                      {member.is_admin ? (
-                        <>
-                          <ShieldMinus className="h-4 w-4 mr-1" />
-                          {isToggling ? '...' : 'Quitar'}
-                        </>
-                      ) : (
-                        <>
-                          <ShieldPlus className="h-4 w-4 mr-1" />
-                          {isToggling ? '...' : 'Hacer admin'}
-                        </>
-                      )}
-                    </Button>
+                    {isSelf && member.is_admin ? (
+                      <span className="text-xs text-muted-foreground shrink-0">No puedes quitarte admin</span>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant={member.is_admin ? 'destructive' : 'default'}
+                        onClick={() => handleToggleAdmin(member)}
+                        disabled={isToggling}
+                        className="shrink-0"
+                      >
+                        {member.is_admin ? (
+                          <>
+                            <ShieldMinus className="h-4 w-4 mr-1" />
+                            {isToggling ? '...' : 'Quitar'}
+                          </>
+                        ) : (
+                          <>
+                            <ShieldPlus className="h-4 w-4 mr-1" />
+                            {isToggling ? '...' : 'Hacer admin'}
+                          </>
+                        )}
+                      </Button>
+                    )}
                   </CardContent>
                 </Card>
               );

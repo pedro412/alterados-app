@@ -5,7 +5,8 @@ import { useProtectedContext } from '@/hooks/useProtectedContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, XCircle, AlertTriangle, ShieldCheck, Clock, MapPinned } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { CheckCircle, XCircle, AlertTriangle, ShieldCheck, Clock, MapPinned, Search, ShieldPlus, ShieldMinus } from 'lucide-react';
 import type { Profile } from '@/types';
 
 interface PresidentWithChapter extends Omit<Profile, 'chapter'> {
@@ -18,6 +19,12 @@ export function AdminPanel() {
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // Admin search
+  const [adminSearch, setAdminSearch] = useState('');
+  const [adminResults, setAdminResults] = useState<PresidentWithChapter[]>([]);
+  const [adminSearching, setAdminSearching] = useState(false);
+  const [togglingAdminId, setTogglingAdminId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchPresidents();
@@ -107,6 +114,54 @@ export function AdminPanel() {
     setUpdatingId(null);
   }
 
+  async function handleAdminSearch(query: string) {
+    setAdminSearch(query);
+    if (query.trim().length < 2) {
+      setAdminResults([]);
+      return;
+    }
+
+    setAdminSearching(true);
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*, chapter:chapters(id, name)')
+      .or(`full_name.ilike.%${query.trim()}%,nickname.ilike.%${query.trim()}%`)
+      .order('full_name')
+      .limit(10);
+
+    if (!error && data) {
+      setAdminResults(data as PresidentWithChapter[]);
+    }
+    setAdminSearching(false);
+  }
+
+  async function handleToggleAdmin(member: PresidentWithChapter) {
+    const action = member.is_admin ? 'quitar' : 'otorgar';
+    const warning = member.is_admin
+      ? `¿Quitar permisos de administrador a "${member.full_name}"?`
+      : `¿Hacer administrador a "${member.full_name}"?\n\nEsta persona tendrá acceso total: podrá gestionar capítulos, verificar presidentes, eliminar miembros y otorgar permisos de admin a otros.`;
+
+    if (!confirm(warning)) return;
+
+    setTogglingAdminId(member.id);
+    setMessage(null);
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({ is_admin: !member.is_admin })
+      .eq('id', member.id);
+
+    if (error) {
+      setMessage({ type: 'error', text: `Error al ${action} permisos de admin` });
+    } else {
+      setMessage({ type: 'success', text: `Permisos de admin ${member.is_admin ? 'removidos' : 'otorgados'} a ${member.full_name}` });
+      setAdminResults((prev) =>
+        prev.map((m) => (m.id === member.id ? { ...m, is_admin: !m.is_admin } : m))
+      );
+    }
+    setTogglingAdminId(null);
+  }
+
   if (!isAdmin) return <Navigate to="/" replace />;
 
   if (loading) {
@@ -156,6 +211,81 @@ export function AdminPanel() {
           </CardContent>
         </Card>
       </Link>
+
+      {/* Admin management */}
+      <div className="space-y-3">
+        <div>
+          <h2 className="text-lg font-bold mb-1">Gestión de Administradores</h2>
+          <p className="text-sm text-muted-foreground">
+            Busca un miembro para otorgar o quitar permisos de administrador
+          </p>
+        </div>
+
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar por nombre o apodo..."
+            value={adminSearch}
+            onChange={(e) => handleAdminSearch(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+
+        {adminSearching && (
+          <p className="text-sm text-muted-foreground">Buscando...</p>
+        )}
+
+        {adminSearch.trim().length >= 2 && adminResults.length === 0 && !adminSearching && (
+          <p className="text-sm text-muted-foreground">No se encontraron resultados</p>
+        )}
+
+        {adminResults.length > 0 && (
+          <div className="space-y-2">
+            {adminResults.map((member) => {
+              const isToggling = togglingAdminId === member.id;
+              return (
+                <Card key={member.id}>
+                  <CardContent className="p-3 flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium truncate">{member.full_name}</p>
+                        {member.is_admin && (
+                          <Badge className="bg-purple-100 text-purple-700 border-purple-200 shrink-0">
+                            Admin
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground truncate">
+                        {member.chapter?.name || 'Sin capítulo'}
+                        {member.nickname && ` · "${member.nickname}"`}
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant={member.is_admin ? 'destructive' : 'default'}
+                      onClick={() => handleToggleAdmin(member)}
+                      disabled={isToggling}
+                      className="shrink-0"
+                    >
+                      {member.is_admin ? (
+                        <>
+                          <ShieldMinus className="h-4 w-4 mr-1" />
+                          {isToggling ? '...' : 'Quitar'}
+                        </>
+                      ) : (
+                        <>
+                          <ShieldPlus className="h-4 w-4 mr-1" />
+                          {isToggling ? '...' : 'Hacer admin'}
+                        </>
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       {/* Presidents verification */}
       <div>

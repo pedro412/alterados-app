@@ -84,7 +84,7 @@ export function CredentialBack({ profile, className }: CredentialBackProps) {
         />
 
         {/* Right: emergency info — stacked, larger */}
-        <div className="flex-1 min-w-0 flex flex-col justify-center gap-[8%]">
+        <div className="flex-1 min-w-0 flex flex-col justify-center gap-[12%]">
           {/* Club name */}
           <p
             className="font-black uppercase leading-none"

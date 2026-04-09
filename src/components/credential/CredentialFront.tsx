@@ -141,12 +141,12 @@ export function CredentialFront({ profile, className }: CredentialFrontProps) {
             </div>
           )}
 
-          {/* Info — bigger text, tighter spacing */}
-          <div className="flex-1 min-w-0 flex flex-col justify-center gap-[3%]">
+          {/* Info — fills right side */}
+          <div className="flex-1 min-w-0 flex flex-col justify-center gap-[6%]">
             {/* Name */}
             <p
-              className="font-bold leading-[1.15] text-white"
-              style={{ fontSize: 'clamp(11px, 4cqi, 20px)' }}
+              className="font-bold leading-[1.1] text-white"
+              style={{ fontSize: 'clamp(16px, 6.5cqi, 34px)' }}
             >
               {profile.full_name}
             </p>
@@ -155,19 +155,19 @@ export function CredentialFront({ profile, className }: CredentialFrontProps) {
             {profile.nickname && (
               <p
                 className="italic leading-none"
-                style={{ fontSize: 'clamp(8px, 2.6cqi, 13px)', color: '#D4A54A' }}
+                style={{ fontSize: 'clamp(11px, 4.2cqi, 22px)', color: '#D4A54A' }}
               >
                 &ldquo;{profile.nickname}&rdquo;
               </p>
             )}
 
             {/* Role + member type */}
-            <div className="flex items-center gap-[3%] flex-wrap">
+            <div className="flex items-center gap-[4%] flex-wrap">
               <span
                 className="inline-block uppercase font-bold tracking-wider rounded-sm"
                 style={{
-                  fontSize: 'clamp(6px, 2cqi, 10px)',
-                  padding: 'clamp(1px, 0.6cqi, 4px) clamp(4px, 1.5cqi, 10px)',
+                  fontSize: 'clamp(8px, 3cqi, 16px)',
+                  padding: 'clamp(2px, 0.8cqi, 6px) clamp(6px, 2.2cqi, 14px)',
                   background: 'linear-gradient(135deg, rgba(180,132,50,0.25) 0%, rgba(212,165,74,0.15) 100%)',
                   border: '1px solid rgba(212,165,74,0.35)',
                   color: '#F5D98A',
@@ -178,7 +178,7 @@ export function CredentialFront({ profile, className }: CredentialFrontProps) {
               </span>
               <span
                 className="uppercase tracking-wider text-zinc-500"
-                style={{ fontSize: 'clamp(5px, 1.6cqi, 8px)' }}
+                style={{ fontSize: 'clamp(7px, 2.6cqi, 14px)' }}
               >
                 {MEMBER_TYPE_LABELS[profile.member_type]}
               </span>
@@ -187,8 +187,8 @@ export function CredentialFront({ profile, className }: CredentialFrontProps) {
             {/* Location */}
             {chapter && (chapter.city || chapter.state) && (
               <p
-                className="text-zinc-500 leading-none"
-                style={{ fontSize: 'clamp(6px, 1.8cqi, 9px)' }}
+                className="text-zinc-400 leading-none"
+                style={{ fontSize: 'clamp(8px, 3cqi, 15px)' }}
               >
                 {[chapter.city, chapter.state].filter(Boolean).join(', ')}
               </p>

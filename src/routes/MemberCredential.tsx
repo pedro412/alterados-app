@@ -143,15 +143,13 @@ export function MemberCredential() {
               </button>
             </div>
 
-            {/* Card container — responsive scaling */}
+            {/* Card container */}
             <div className="flex justify-center">
-              <div className="w-full max-w-[380px]">
-                {activeSide === 'front' ? (
-                  <CredentialFront profile={member} />
-                ) : (
-                  <CredentialBack profile={member} />
-                )}
-              </div>
+              {activeSide === 'front' ? (
+                <CredentialFront profile={member} />
+              ) : (
+                <CredentialBack profile={member} />
+              )}
             </div>
           </div>
         ) : (
@@ -175,13 +173,9 @@ export function MemberCredential() {
       </div>
 
       {/* Print-only content */}
-      <div className="credential-print hidden print:flex print:flex-col print:items-center print:gap-8 print:pt-8">
-        <div style={{ width: '85.6mm', height: '54mm' }}>
-          <CredentialFront profile={member} />
-        </div>
-        <div style={{ width: '85.6mm', height: '54mm' }}>
-          <CredentialBack profile={member} />
-        </div>
+      <div className="credential-print hidden print:flex print:flex-row print:items-start print:justify-center print:gap-8 print:pt-8">
+        <CredentialFront profile={member} />
+        <CredentialBack profile={member} />
       </div>
     </>
   );

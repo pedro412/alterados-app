@@ -61,13 +61,13 @@ export const CredentialPVC = forwardRef<CredentialPVCHandle, CredentialPVCProps>
       <div className="space-y-4">
         <div>
           <p className="text-sm text-muted-foreground mb-2">Frente (PVC 300 DPI)</p>
-          <div className="w-full max-w-sm rounded-lg border border-zinc-700 overflow-hidden">
+          <div className="w-full max-w-sm rounded-lg border border-zinc-300 overflow-hidden">
             <CredentialFront profile={profile} />
           </div>
         </div>
         <div>
           <p className="text-sm text-muted-foreground mb-2">Reverso (PVC 300 DPI)</p>
-          <div className="w-full max-w-sm rounded-lg border border-zinc-700 overflow-hidden">
+          <div className="w-full max-w-sm rounded-lg border border-zinc-300 overflow-hidden">
             <CredentialBack profile={profile} />
           </div>
         </div>

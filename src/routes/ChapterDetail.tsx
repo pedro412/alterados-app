@@ -167,7 +167,7 @@ export function ChapterDetail() {
               {chapter.foundation_date && (
                 <p className="text-sm text-muted-foreground flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
-                  Fundado: {new Date(chapter.foundation_date).toLocaleDateString('es-MX')}
+                  Fundado: {new Date(chapter.foundation_date + 'T00:00:00').toLocaleDateString('es-MX')}
                 </p>
               )}
             </div>

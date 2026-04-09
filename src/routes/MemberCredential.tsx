@@ -174,8 +174,8 @@ export function MemberCredential() {
         </div>
       </div>
 
-      {/* Print-only content */}
-      <div className="credential-print hidden print:flex print:flex-col print:items-center print:gap-8 print:pt-8">
+      {/* Print-only content — side by side so you fold in half */}
+      <div className="credential-print hidden print:flex print:flex-row print:items-start print:justify-center print:gap-0 print:pt-8">
         <div style={{ width: '85.6mm', height: '54mm' }}>
           <CredentialFront profile={member} />
         </div>

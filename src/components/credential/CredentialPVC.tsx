@@ -4,9 +4,10 @@ import { CredentialFront } from './CredentialFront';
 import { CredentialBack } from './CredentialBack';
 import type { Profile } from '@/types';
 
-// CR-80 at 300 DPI
-const CARD_W = 1012;
-const CARD_H = 638;
+// Card size matches CSS (340×540), exported at 3x for high-res PNG
+const CARD_W = 340;
+const CARD_H = 540;
+const EXPORT_SCALE = 3;
 
 export interface CredentialPVCHandle {
   downloadFront: (filename?: string) => void;
@@ -21,7 +22,7 @@ async function captureElement(el: HTMLElement, filename: string) {
   const dataUrl = await toPng(el, {
     width: CARD_W,
     height: CARD_H,
-    pixelRatio: 1,
+    pixelRatio: EXPORT_SCALE,
     cacheBust: true,
   });
   const a = document.createElement('a');
@@ -60,28 +61,18 @@ export const CredentialPVC = forwardRef<CredentialPVCHandle, CredentialPVCProps>
     return (
       <div className="space-y-4">
         <div>
-          <p className="text-sm text-muted-foreground mb-2">Frente (PVC 300 DPI)</p>
-          <div className="w-full max-w-sm rounded-lg border border-zinc-700 overflow-hidden">
-            <CredentialFront profile={profile} />
-          </div>
+          <p className="text-sm text-muted-foreground mb-2">Frente (PVC alta resolución)</p>
+          <CredentialFront profile={profile} />
         </div>
         <div>
-          <p className="text-sm text-muted-foreground mb-2">Reverso (PVC 300 DPI)</p>
-          <div className="w-full max-w-sm rounded-lg border border-zinc-700 overflow-hidden">
-            <CredentialBack profile={profile} />
-          </div>
+          <p className="text-sm text-muted-foreground mb-2">Reverso (PVC alta resolución)</p>
+          <CredentialBack profile={profile} />
         </div>
 
-        {/* Offscreen renders at 300 DPI for export */}
+        {/* Offscreen renders for high-res export */}
         <div
           aria-hidden
-          style={{
-            position: 'absolute',
-            left: '-9999px',
-            top: 0,
-            width: CARD_W,
-            height: CARD_H,
-          }}
+          style={{ position: 'absolute', left: '-9999px', top: 0 }}
         >
           <div ref={frontRef} style={{ width: CARD_W, height: CARD_H }}>
             <CredentialFront profile={profile} className="!rounded-none" />
@@ -89,13 +80,7 @@ export const CredentialPVC = forwardRef<CredentialPVCHandle, CredentialPVCProps>
         </div>
         <div
           aria-hidden
-          style={{
-            position: 'absolute',
-            left: '-9999px',
-            top: 0,
-            width: CARD_W,
-            height: CARD_H,
-          }}
+          style={{ position: 'absolute', left: '-9999px', top: 0 }}
         >
           <div ref={backRef} style={{ width: CARD_W, height: CARD_H }}>
             <CredentialBack profile={profile} className="!rounded-none" />

@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { DateOfBirthPicker } from '@/components/ui/date-of-birth-picker';
 import { ROLE_LABELS, MEMBER_TYPE_LABELS, BLOOD_TYPES } from '@/types';
 import type { Role, MemberType, BloodType } from '@/types';
 
@@ -192,11 +193,10 @@ export function Profile() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="dob">Fecha de nacimiento</Label>
-                <Input
+                <DateOfBirthPicker
                   id="dob"
-                  type="date"
                   value={form.date_of_birth}
-                  onChange={(e) => setForm((prev) => ({ ...prev, date_of_birth: e.target.value }))}
+                  onChange={(val) => setForm((prev) => ({ ...prev, date_of_birth: val }))}
                 />
               </div>
             </div>

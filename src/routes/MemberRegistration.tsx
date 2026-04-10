@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
+import { DateOfBirthPicker } from '@/components/ui/date-of-birth-picker';
 import { ROLE_LABELS, MEMBER_TYPE_LABELS, BLOOD_TYPES } from '@/types';
 import type { Role, MemberType, BloodType } from '@/types';
 
@@ -206,11 +207,10 @@ export function MemberRegistration() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="date_of_birth">Fecha de nacimiento</Label>
-                <Input
+                <DateOfBirthPicker
                   id="date_of_birth"
-                  type="date"
                   value={form.date_of_birth}
-                  onChange={(e) => setForm((prev) => ({ ...prev, date_of_birth: e.target.value }))}
+                  onChange={(val) => setForm((prev) => ({ ...prev, date_of_birth: val }))}
                 />
               </div>
             </div>

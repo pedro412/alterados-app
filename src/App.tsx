@@ -12,6 +12,7 @@ import { ChapterSettings } from '@/routes/ChapterSettings';
 import { ChapterSettingsRedirect } from '@/routes/ChapterSettingsRedirect';
 import { MembersRedirect } from '@/routes/MembersRedirect';
 import { MemberRegistration } from '@/routes/MemberRegistration';
+import { MemberEdit } from '@/routes/MemberEdit';
 import { Profile } from '@/routes/Profile';
 import { MemberCredential } from '@/routes/MemberCredential';
 import { Birthdays } from '@/routes/Birthdays';
@@ -53,6 +54,7 @@ export default function App() {
           <Route path="/chapter/settings" element={<ChapterSettingsRedirect />} />
           <Route path="/members" element={<MembersRedirect />} />
           <Route path="/members/new" element={<MemberRegistration />} />
+          <Route path="/members/:id/edit" element={<MemberEdit />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/members/:id/credential" element={<MemberCredential />} />
           <Route path="/birthdays" element={<Birthdays />} />

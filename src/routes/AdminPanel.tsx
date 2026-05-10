@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { CheckCircle, XCircle, AlertTriangle, ShieldCheck, Clock, MapPinned, Search, ShieldPlus, ShieldMinus } from 'lucide-react';
+import { CheckCircle, XCircle, AlertTriangle, ShieldCheck, Clock, MapPinned, Search, ShieldPlus, ShieldMinus, Shield } from 'lucide-react';
 import type { Profile } from '@/types';
 
 interface PresidentWithChapter extends Omit<Profile, 'chapter'> {
@@ -16,6 +16,7 @@ interface PresidentWithChapter extends Omit<Profile, 'chapter'> {
 export function AdminPanel() {
   const { isAdmin, profile: currentUser } = useProtectedContext();
   const [presidents, setPresidents] = useState<PresidentWithChapter[]>([]);
+  const [admins, setAdmins] = useState<PresidentWithChapter[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -28,6 +29,7 @@ export function AdminPanel() {
 
   useEffect(() => {
     fetchPresidents();
+    fetchAdmins();
   }, []);
 
   async function fetchPresidents() {
@@ -44,6 +46,20 @@ export function AdminPanel() {
       setPresidents(data as PresidentWithChapter[]);
     }
     setLoading(false);
+  }
+
+  async function fetchAdmins() {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*, chapter:chapters(id, name)')
+      .eq('is_admin', true)
+      .order('full_name');
+
+    if (error) {
+      console.error('Error fetching admins:', error);
+    } else {
+      setAdmins(data as PresidentWithChapter[]);
+    }
   }
 
   async function handleVerify(memberId: string) {
@@ -158,6 +174,7 @@ export function AdminPanel() {
       setAdminResults((prev) =>
         prev.map((m) => (m.id === member.id ? { ...m, is_admin: !m.is_admin } : m))
       );
+      await fetchAdmins();
     }
     setTogglingAdminId(null);
   }
@@ -212,12 +229,66 @@ export function AdminPanel() {
         </Card>
       </Link>
 
+      {/* Current admins */}
+      <div className="space-y-3">
+        <div>
+          <h2 className="text-lg font-bold mb-1 flex items-center gap-2">
+            <Shield className="h-5 w-5 text-purple-600" />
+            Administradores actuales ({admins.length})
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Personas con acceso total al panel
+          </p>
+        </div>
+
+        {admins.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No hay administradores registrados</p>
+        ) : (
+          <div className="space-y-2">
+            {admins.map((member) => {
+              const isToggling = togglingAdminId === member.id;
+              const isSelf = member.id === currentUser?.id;
+              return (
+                <Card key={member.id} className="border-purple-100">
+                  <CardContent className="p-3 flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-medium truncate">
+                        {member.full_name}
+                        {isSelf && <span className="text-muted-foreground font-normal"> (tú)</span>}
+                      </p>
+                      <p className="text-sm text-muted-foreground truncate">
+                        {member.chapter?.name || 'Sin capítulo'}
+                        {member.nickname && ` · "${member.nickname}"`}
+                      </p>
+                    </div>
+                    {isSelf ? (
+                      <span className="text-xs text-muted-foreground shrink-0">No puedes quitarte admin</span>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleToggleAdmin(member)}
+                        disabled={isToggling}
+                        className="shrink-0"
+                      >
+                        <ShieldMinus className="h-4 w-4 mr-1" />
+                        {isToggling ? '...' : 'Quitar'}
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
       {/* Admin management */}
       <div className="space-y-3">
         <div>
-          <h2 className="text-lg font-bold mb-1">Gestión de Administradores</h2>
+          <h2 className="text-lg font-bold mb-1">Otorgar permisos de admin</h2>
           <p className="text-sm text-muted-foreground">
-            Busca un miembro para otorgar o quitar permisos de administrador
+            Busca un miembro para hacerlo administrador
           </p>
         </div>
 

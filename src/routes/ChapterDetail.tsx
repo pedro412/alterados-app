@@ -1,15 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router';
-import { MapPin, Calendar, Settings, UserPlus, Droplets, Phone, CreditCard, Trash2 } from 'lucide-react';
+import { MapPin, Calendar, Settings, UserPlus, Droplets, Phone, CreditCard, Pencil, Trash2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useProtectedContext } from '@/hooks/useProtectedContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Select } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
 import { MemberCard } from '@/components/MemberCard';
-import { ROLE_LABELS, MEMBER_TYPE_LABELS } from '@/types';
+import { MEMBER_TYPE_LABELS } from '@/types';
 import type { Chapter, Profile } from '@/types';
 
 export function ChapterDetail() {
@@ -19,7 +18,6 @@ export function ChapterDetail() {
   const [members, setMembers] = useState<Profile[]>([]);
   const [unassigned, setUnassigned] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
-  const [editingId, setEditingId] = useState<string | null>(null);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const canManage =
@@ -58,22 +56,6 @@ export function ChapterDetail() {
     fetchData();
   }, [id]);
 
-  async function handleUnassign(memberId: string) {
-    setMessage(null);
-    const { error } = await supabase
-      .from('profiles')
-      .update({ chapter_id: null })
-      .eq('id', memberId);
-
-    if (error) {
-      setMessage({ type: 'error', text: 'Error al desasignar miembro' });
-    } else {
-      setMessage({ type: 'success', text: 'Miembro desasignado del capítulo' });
-      await fetchData();
-    }
-    setTimeout(() => setMessage(null), 2000);
-  }
-
   async function handleDeleteMember(memberId: string, memberName: string) {
     if (!confirm(`¿Eliminar a "${memberName}"? Esta acción es irreversible y liberará su correo electrónico.`)) return;
 
@@ -101,24 +83,6 @@ export function ChapterDetail() {
     } else {
       setMessage({ type: 'success', text: 'Miembro asignado al capítulo' });
       await fetchData();
-    }
-    setTimeout(() => setMessage(null), 2000);
-  }
-
-  async function handleUpdate(memberId: string, field: string, value: string) {
-    setMessage(null);
-    const { error } = await supabase
-      .from('profiles')
-      .update({ [field]: value })
-      .eq('id', memberId);
-
-    if (error) {
-      setMessage({ type: 'error', text: 'Error al actualizar' });
-    } else {
-      setMembers((prev) =>
-        prev.map((m) => (m.id === memberId ? { ...m, [field]: value } : m))
-      );
-      setMessage({ type: 'success', text: 'Actualizado' });
     }
     setTimeout(() => setMessage(null), 2000);
   }
@@ -221,7 +185,6 @@ export function ChapterDetail() {
         <h2 className="text-lg font-semibold mb-3">Miembros ({members.length})</h2>
         <div className="space-y-3">
           {members.map((member) => {
-            const isEditing = editingId === member.id;
             const isSelf = member.id === currentUser?.id;
             const canEdit = canManage && !isSelf;
 
@@ -232,21 +195,23 @@ export function ChapterDetail() {
                     <MemberCard member={member}>
                       <Badge variant="outline">{MEMBER_TYPE_LABELS[member.member_type]}</Badge>
                     </MemberCard>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                       <Link
                         to={`/members/${member.id}/credential`}
-                        className="text-xs text-muted-foreground hover:text-primary cursor-pointer"
-                        onClick={(e) => e.stopPropagation()}
+                        className="text-muted-foreground hover:text-primary cursor-pointer"
+                        title="Credencial"
                       >
                         <CreditCard className="h-4 w-4" />
                       </Link>
                       {canEdit && (
-                        <button
-                          onClick={() => setEditingId(isEditing ? null : member.id)}
-                          className="text-xs text-primary hover:underline cursor-pointer"
+                        <Link
+                          to={`/members/${member.id}/edit`}
+                          className="text-primary hover:underline cursor-pointer flex items-center gap-1 text-xs"
+                          title="Editar miembro"
                         >
-                          {isEditing ? 'Cerrar' : 'Editar'}
-                        </button>
+                          <Pencil className="h-4 w-4" />
+                          Editar
+                        </Link>
                       )}
                     </div>
                   </div>
@@ -266,77 +231,6 @@ export function ChapterDetail() {
                       </span>
                     )}
                   </div>
-
-                  {/* Edit mode */}
-                  {isEditing && (
-                    <div className="space-y-2 pt-2 border-t">
-                      <div>
-                        <label className="text-xs text-muted-foreground">Rol</label>
-                        <Select
-                          value={member.role}
-                          onChange={(e) => handleUpdate(member.id, 'role', e.target.value)}
-                        >
-                          {Object.entries(ROLE_LABELS).map(([value, label]) => (
-                            <option key={value} value={value}>
-                              {label}
-                            </option>
-                          ))}
-                        </Select>
-                      </div>
-                      <div>
-                        <label className="text-xs text-muted-foreground">Tipo de miembro</label>
-                        <Select
-                          value={member.member_type}
-                          onChange={(e) =>
-                            handleUpdate(member.id, 'member_type', e.target.value)
-                          }
-                        >
-                          {Object.entries(MEMBER_TYPE_LABELS).map(([value, label]) => (
-                            <option key={value} value={value}>
-                              {label}
-                            </option>
-                          ))}
-                        </Select>
-                      </div>
-                      <div>
-                        <label className="text-xs text-muted-foreground">Estado</label>
-                        <Select
-                          value={member.is_active ? 'active' : 'inactive'}
-                          onChange={(e) =>
-                            handleUpdate(
-                              member.id,
-                              'is_active',
-                              e.target.value === 'active' ? 'true' : 'false'
-                            )
-                          }
-                        >
-                          <option value="active">Activo</option>
-                          <option value="inactive">Inactivo</option>
-                        </Select>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className="flex-1"
-                          onClick={() => handleUnassign(member.id)}
-                        >
-                          Desasignar
-                        </Button>
-                        {isAdmin && (
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => handleDeleteMember(member.id, member.full_name)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  )}
                 </CardContent>
               </Card>
             );

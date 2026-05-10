@@ -69,12 +69,26 @@ RETURNS boolean AS $$
   );
 $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 
--- 5. Helper: verificar si es presidente de un chapter específico
+-- 5. Helper: verificar si es presidente VERIFICADO de un chapter específico
 CREATE OR REPLACE FUNCTION public.is_president_of(_chapter_id uuid)
 RETURNS boolean AS $$
   SELECT EXISTS (
     SELECT 1 FROM public.profiles
-    WHERE id = auth.uid() AND role = 'president' AND chapter_id = _chapter_id
+    WHERE id = auth.uid()
+      AND role = 'president'
+      AND is_verified = true
+      AND chapter_id = _chapter_id
+  );
+$$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
+
+-- 5b. Helper: ¿el usuario actual es presidente verificado de algún capítulo?
+CREATE OR REPLACE FUNCTION public.is_president_verified()
+RETURNS boolean AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE id = auth.uid()
+      AND role = 'president'
+      AND is_verified = true
   );
 $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 
@@ -130,12 +144,23 @@ CREATE POLICY "profiles_update_admin"
   ON public.profiles FOR UPDATE
   USING (public.is_admin());
 
--- Presidente puede editar miembros de su chapter (para desactivar)
+-- Presidente verificado tiene control total sobre miembros de su capítulo
+-- (editar datos, foto, asignar miembros sin capítulo, desasignar)
 CREATE POLICY "profiles_update_president"
   ON public.profiles FOR UPDATE
   USING (
-    public.is_president_of(chapter_id)
-    AND auth.uid() != id
+    auth.uid() <> id
+    AND (
+      public.is_president_of(chapter_id)
+      OR (chapter_id IS NULL AND public.is_president_verified())
+    )
+  )
+  WITH CHECK (
+    auth.uid() <> id
+    AND (
+      public.is_president_of(chapter_id)
+      OR chapter_id IS NULL
+    )
   );
 
 -- Admin puede eliminar perfiles

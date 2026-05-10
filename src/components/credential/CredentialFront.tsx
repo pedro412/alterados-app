@@ -7,6 +7,18 @@ interface CredentialFrontProps {
   className?: string;
 }
 
+// Paleta MC: negro + naranja metálico + blanco
+const ORANGE_GRADIENT = `linear-gradient(180deg,
+  #FFE4C4 0%,
+  #FFB67A 18%,
+  #E8651F 45%,
+  #B84410 75%,
+  #FFB67A 100%)`;
+
+const ORANGE = '#E8651F';
+const ORANGE_DARK = '#A03808';
+const ORANGE_LIGHT = '#FFB67A';
+
 export function CredentialFront({ profile, className }: CredentialFrontProps) {
   const chapter = profile.chapter;
   const initials = profile.full_name
@@ -15,191 +27,236 @@ export function CredentialFront({ profile, className }: CredentialFrontProps) {
     .slice(0, 2)
     .join('');
 
+  const chapterShort = chapter?.name.replace(/Alterados MC\s*/i, '').trim() || '';
+
   return (
     <div
       className={cn(
-        'credential-card relative overflow-hidden text-zinc-900 select-none',
+        'credential-card relative overflow-hidden text-white select-none',
         'print:rounded-none print:shadow-none',
         className
       )}
       style={{
         aspectRatio: '85.6 / 54',
         background: `
-          radial-gradient(ellipse 120% 80% at 20% 100%, rgba(180,130,50,0.05) 0%, transparent 50%),
-          radial-gradient(ellipse 80% 60% at 85% 15%, rgba(180,130,50,0.04) 0%, transparent 50%),
-          linear-gradient(145deg, #ffffff 0%, #fafafa 40%, #f8f8f8 70%, #f5f5f5 100%)
+          radial-gradient(ellipse 90% 70% at 30% 30%, rgba(232,101,31,0.08) 0%, transparent 60%),
+          radial-gradient(ellipse 80% 60% at 80% 90%, rgba(232,101,31,0.06) 0%, transparent 60%),
+          linear-gradient(145deg, #1a1a1a 0%, #0f0f0f 50%, #050505 100%)
         `,
       }}
     >
       {/* Noise texture */}
       <div
-        className="absolute inset-0 opacity-[0.02] pointer-events-none"
+        className="absolute inset-0 opacity-[0.06] pointer-events-none mix-blend-overlay"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
         }}
       />
 
-      {/* Gold foil strips */}
-      <div className="absolute top-0 left-0 right-0 h-[3px]" style={{ background: 'linear-gradient(90deg, transparent 0%, #8B6914 15%, #D4A54A 30%, #F5D98A 50%, #D4A54A 70%, #8B6914 85%, transparent 100%)' }} />
-      <div className="absolute bottom-0 left-0 right-0 h-[3px]" style={{ background: 'linear-gradient(90deg, transparent 0%, #8B6914 15%, #D4A54A 30%, #F5D98A 50%, #D4A54A 70%, #8B6914 85%, transparent 100%)' }} />
-
-      {/* Inner frame */}
-      <div className="absolute inset-[4px] rounded-sm pointer-events-none" style={{ border: '1px solid rgba(180,130,50,0.25)' }} />
-
-      {/* Corner ornaments */}
-      <div className="absolute top-[6px] left-[6px] w-3 h-3 border-t border-l border-amber-600/50" />
-      <div className="absolute top-[6px] right-[6px] w-3 h-3 border-t border-r border-amber-600/50" />
-      <div className="absolute bottom-[6px] left-[6px] w-3 h-3 border-b border-l border-amber-600/50" />
-      <div className="absolute bottom-[6px] right-[6px] w-3 h-3 border-b border-r border-amber-600/50" />
-
-      {/* Nacional watermark */}
+      {/* Watermark moto silhouette (centered, very low opacity) */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <img
           src="/nacionalmc.jpeg"
           alt=""
           className="rounded-full object-cover"
           style={{
-            width: '55%',
+            width: '60%',
             aspectRatio: '1',
-            opacity: 0.06,
-            filter: 'grayscale(100%)',
+            opacity: 0.08,
+            filter: 'grayscale(100%) brightness(1.2)',
           }}
           crossOrigin="anonymous"
         />
       </div>
 
-      {/* Content — tighter padding, full use of space */}
-      <div className="relative h-full flex flex-col" style={{ padding: '3.5% 4%' }}>
+      {/* Right vertical orange band — signature stripe */}
+      <div
+        className="absolute top-0 bottom-0 right-0 pointer-events-none"
+        style={{
+          width: '5.5%',
+          background: `linear-gradient(180deg, ${ORANGE_LIGHT} 0%, ${ORANGE} 50%, ${ORANGE_DARK} 100%)`,
+          boxShadow: 'inset 2px 0 4px rgba(0,0,0,0.4), inset -1px 0 0 rgba(0,0,0,0.5)',
+        }}
+      />
+
+      {/* Top + bottom thin orange edges */}
+      <div
+        className="absolute top-0 left-0 right-0"
+        style={{
+          height: '2px',
+          background: `linear-gradient(90deg, transparent 0%, ${ORANGE_DARK} 10%, ${ORANGE} 50%, ${ORANGE_DARK} 90%, transparent 100%)`,
+        }}
+      />
+      <div
+        className="absolute bottom-0 left-0 right-0"
+        style={{
+          height: '2px',
+          background: `linear-gradient(90deg, transparent 0%, ${ORANGE_DARK} 10%, ${ORANGE} 50%, ${ORANGE_DARK} 90%, transparent 100%)`,
+        }}
+      />
+
+      {/* Content */}
+      <div
+        className="relative h-full flex flex-col"
+        style={{ padding: '4% 8% 4% 4%' }}
+      >
         {/* Header: club name + chapter logo */}
         <div className="flex items-center gap-[2%]">
-          {/* Club title */}
           <div className="flex-1 text-center min-w-0">
             <p
-              className="font-black uppercase leading-none"
+              className="font-black uppercase leading-[0.95]"
               style={{
-                fontSize: 'clamp(10px, 3.8cqi, 20px)',
-                letterSpacing: '0.12em',
-                background: 'linear-gradient(180deg, #D4A54A 0%, #B48432 40%, #8B6914 100%)',
+                fontSize: 'clamp(11px, 4.2cqi, 22px)',
+                letterSpacing: '0.08em',
+                background: ORANGE_GRADIENT,
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
+                filter: 'drop-shadow(0 1px 0 rgba(0,0,0,0.6)) drop-shadow(0 2px 2px rgba(0,0,0,0.4))',
               }}
             >
               Alterados MC
             </p>
-            {chapter && (
+            {chapterShort && (
               <p
-                className="uppercase tracking-[0.15em] text-zinc-500 leading-none"
-                style={{ fontSize: 'clamp(6px, 2cqi, 10px)', marginTop: '1px' }}
+                className="font-black uppercase leading-none"
+                style={{
+                  fontSize: 'clamp(9px, 3.4cqi, 18px)',
+                  letterSpacing: '0.1em',
+                  background: ORANGE_GRADIENT,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  filter: 'drop-shadow(0 1px 0 rgba(0,0,0,0.6))',
+                  marginTop: '2px',
+                }}
               >
-                {chapter.name.replace('Alterados MC ', '')}
+                Capítulo {chapterShort}
               </p>
             )}
           </div>
 
-          {/* Chapter logo (right) */}
-          {chapter?.logo_url ? (
+          {chapter?.logo_url && (
             <img
               src={chapter.logo_url}
               alt={chapter.name}
               className="credential-logo-lg rounded-full object-cover shrink-0"
-              style={{ border: '2px solid rgba(212,165,74,0.5)', boxShadow: '0 0 8px rgba(212,165,74,0.15)' }}
+              style={{
+                border: `2px solid ${ORANGE}`,
+                boxShadow: `0 0 8px rgba(232,101,31,0.4)`,
+              }}
               crossOrigin="anonymous"
             />
-          ) : (
-            <div
-              className="credential-logo-lg rounded-full bg-zinc-100 flex items-center justify-center font-bold shrink-0"
-              style={{ border: '2px solid rgba(212,165,74,0.5)', color: '#8B6914', fontSize: 'clamp(10px, 3cqi, 18px)' }}
-            >
-              {chapter?.name?.charAt(0) || 'A'}
-            </div>
           )}
         </div>
 
-        {/* Thin divider */}
-        <div style={{ height: '1px', margin: '2.5% 0', background: 'linear-gradient(90deg, transparent, rgba(212,165,74,0.3) 20%, rgba(212,165,74,0.3) 80%, transparent)' }} />
-
-        {/* Body: photo + info — fills remaining space */}
-        <div className="flex gap-[4%] flex-1 min-h-0">
-          {/* Photo — taller */}
-          {profile.profile_photo_url ? (
-            <img
-              src={profile.profile_photo_url}
-              alt={profile.full_name}
-              className="credential-photo-lg rounded-sm object-cover shrink-0 self-stretch"
-              style={{ border: '2px solid rgba(212,165,74,0.35)', boxShadow: '0 2px 12px rgba(0,0,0,0.1)' }}
-              crossOrigin="anonymous"
-            />
-          ) : (
+        {/* Body: photo + info */}
+        <div className="flex gap-[4%] flex-1 min-h-0" style={{ marginTop: '3%' }}>
+          {/* Left column: photo + nickname (column fills body height) */}
+          <div
+            className="shrink-0 flex flex-col items-center h-full"
+            style={{ width: '30%' }}
+          >
+            {/* Photo wrapper takes all remaining height; nickname sits below */}
             <div
-              className="credential-photo-lg rounded-sm bg-zinc-100 flex items-center justify-center shrink-0 self-stretch"
-              style={{ border: '2px solid rgba(212,165,74,0.35)', boxShadow: '0 2px 12px rgba(0,0,0,0.1)' }}
+              className="w-full"
+              style={{
+                flex: '1 1 auto',
+                minHeight: 0,
+                border: `1px solid ${ORANGE}`,
+                boxShadow: '0 2px 12px rgba(0,0,0,0.4)',
+                background: '#0a0a0a',
+              }}
             >
-              <span
-                className="font-bold"
-                style={{
-                  fontSize: 'clamp(18px, 7cqi, 36px)',
-                  background: 'linear-gradient(180deg, #B48432, #8B6914)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                }}
-              >
-                {initials}
-              </span>
+              {profile.profile_photo_url ? (
+                <img
+                  src={profile.profile_photo_url}
+                  alt={profile.full_name}
+                  className="block w-full h-full object-cover"
+                  crossOrigin="anonymous"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <span
+                    className="font-black uppercase"
+                    style={{
+                      fontSize: 'clamp(20px, 8cqi, 40px)',
+                      background: ORANGE_GRADIENT,
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                    }}
+                  >
+                    {initials}
+                  </span>
+                </div>
+              )}
             </div>
-          )}
 
-          {/* Info — fills right side */}
-          <div className="flex-1 min-w-0 flex flex-col justify-center gap-[6%]">
-            {/* Name */}
-            <p
-              className="font-bold leading-[1.1] text-zinc-900"
-              style={{ fontSize: 'clamp(16px, 6.5cqi, 34px)' }}
-            >
-              {profile.full_name}
-            </p>
-
-            {/* Nickname */}
             {profile.nickname && (
               <p
-                className="italic leading-none"
-                style={{ fontSize: 'clamp(11px, 4.2cqi, 22px)', color: '#8B6914' }}
+                className="font-black uppercase text-white text-center w-full shrink-0"
+                style={{
+                  fontSize: 'clamp(10px, 3.8cqi, 20px)',
+                  letterSpacing: '0.05em',
+                  marginTop: 'clamp(4px, 1.8cqi, 10px)',
+                  textShadow: '0 1px 2px rgba(0,0,0,0.6)',
+                  lineHeight: '1',
+                }}
               >
                 &ldquo;{profile.nickname}&rdquo;
               </p>
             )}
+          </div>
 
-            {/* Role + member type */}
-            <div className="flex items-center gap-[4%] flex-wrap">
-              <span
-                className="inline-block uppercase font-bold tracking-wider rounded-sm"
-                style={{
-                  fontSize: 'clamp(8px, 3cqi, 16px)',
-                  padding: 'clamp(2px, 0.8cqi, 6px) clamp(6px, 2.2cqi, 14px)',
-                  background: 'linear-gradient(135deg, rgba(180,132,50,0.12) 0%, rgba(212,165,74,0.08) 100%)',
-                  border: '1px solid rgba(180,132,50,0.4)',
-                  color: '#8B6914',
-                  letterSpacing: '0.1em',
-                }}
-              >
-                {ROLE_LABELS[profile.role]}
-              </span>
-              <span
-                className="uppercase tracking-wider text-zinc-500"
-                style={{ fontSize: 'clamp(7px, 2.6cqi, 14px)' }}
-              >
-                {MEMBER_TYPE_LABELS[profile.member_type]}
-              </span>
-            </div>
+          {/* Right column: info stacked */}
+          <div className="flex-1 min-w-0 flex flex-col gap-[5%] justify-center">
+            {/* Name */}
+            <p
+              className="font-bold uppercase text-white leading-[1.05]"
+              style={{
+                fontSize: 'clamp(11px, 4.4cqi, 22px)',
+                letterSpacing: '0.02em',
+                textShadow: '0 1px 2px rgba(0,0,0,0.6)',
+              }}
+            >
+              {profile.full_name}
+            </p>
 
             {/* Location */}
             {chapter && (chapter.city || chapter.state) && (
               <p
-                className="text-zinc-500 leading-none"
-                style={{ fontSize: 'clamp(8px, 3cqi, 15px)' }}
+                className="uppercase text-white leading-[1.1]"
+                style={{
+                  fontSize: 'clamp(8px, 3cqi, 15px)',
+                  letterSpacing: '0.08em',
+                  opacity: 0.9,
+                }}
               >
                 {[chapter.city, chapter.state].filter(Boolean).join(', ')}
+                {chapter.state && ', México'}
               </p>
             )}
+
+            {/* Member type prominent */}
+            <p
+              className="font-bold uppercase text-white leading-none"
+              style={{
+                fontSize: 'clamp(10px, 3.8cqi, 20px)',
+                letterSpacing: '0.12em',
+              }}
+            >
+              {MEMBER_TYPE_LABELS[profile.member_type]}
+            </p>
+
+            {/* Role */}
+            <p
+              className="uppercase leading-none"
+              style={{
+                fontSize: 'clamp(6px, 2.2cqi, 11px)',
+                letterSpacing: '0.12em',
+                color: ORANGE_LIGHT,
+              }}
+            >
+              Rol · {ROLE_LABELS[profile.role]}
+            </p>
           </div>
         </div>
       </div>

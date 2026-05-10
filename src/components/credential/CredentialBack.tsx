@@ -7,75 +7,139 @@ interface CredentialBackProps {
   className?: string;
 }
 
+const ORANGE_GRADIENT = `linear-gradient(180deg,
+  #FFE4C4 0%,
+  #FFB67A 18%,
+  #E8651F 45%,
+  #B84410 75%,
+  #FFB67A 100%)`;
+
+const ORANGE = '#E8651F';
+const ORANGE_DARK = '#A03808';
+const ORANGE_LIGHT = '#FFB67A';
+
 export function CredentialBack({ profile, className }: CredentialBackProps) {
   const publicUrl = `${window.location.origin}/profile/${profile.id}`;
 
   return (
     <div
       className={cn(
-        'credential-card relative overflow-hidden text-zinc-900 select-none',
+        'credential-card relative overflow-hidden select-none',
         'print:rounded-none print:shadow-none',
         className
       )}
       style={{
         aspectRatio: '85.6 / 54',
-        background: `
-          radial-gradient(ellipse 100% 80% at 50% 110%, rgba(180,130,50,0.04) 0%, transparent 50%),
-          linear-gradient(145deg, #ffffff 0%, #fafafa 40%, #f8f8f8 70%, #f5f5f5 100%)
-        `,
+        background: '#0f0f0f',
       }}
     >
-      {/* Noise texture */}
+      {/* Top zone — black with logo */}
       <div
-        className="absolute inset-0 opacity-[0.02] pointer-events-none"
+        className="absolute top-0 left-0 right-0"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+          height: '38%',
+          background: `
+            radial-gradient(ellipse 80% 100% at 50% 30%, rgba(232,101,31,0.1) 0%, transparent 70%),
+            linear-gradient(145deg, #1a1a1a 0%, #0f0f0f 100%)
+          `,
         }}
-      />
-
-      {/* Gold foil strips */}
-      <div className="absolute top-0 left-0 right-0 h-[3px]" style={{ background: 'linear-gradient(90deg, transparent 0%, #8B6914 15%, #D4A54A 30%, #F5D98A 50%, #D4A54A 70%, #8B6914 85%, transparent 100%)' }} />
-      <div className="absolute bottom-0 left-0 right-0 h-[3px]" style={{ background: 'linear-gradient(90deg, transparent 0%, #8B6914 15%, #D4A54A 30%, #F5D98A 50%, #D4A54A 70%, #8B6914 85%, transparent 100%)' }} />
-
-      {/* Inner frame */}
-      <div className="absolute inset-[4px] rounded-sm pointer-events-none" style={{ border: '1px solid rgba(180,130,50,0.25)' }} />
-
-      {/* Corner ornaments */}
-      <div className="absolute top-[6px] left-[6px] w-3 h-3 border-t border-l border-amber-600/50" />
-      <div className="absolute top-[6px] right-[6px] w-3 h-3 border-t border-r border-amber-600/50" />
-      <div className="absolute bottom-[6px] left-[6px] w-3 h-3 border-b border-l border-amber-600/50" />
-      <div className="absolute bottom-[6px] right-[6px] w-3 h-3 border-b border-r border-amber-600/50" />
-
-      {/* Nacional watermark */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <img
-          src="/nacionalmc.jpeg"
-          alt=""
-          className="rounded-full object-cover"
+      >
+        {/* Top noise */}
+        <div
+          className="absolute inset-0 opacity-[0.06] pointer-events-none mix-blend-overlay"
           style={{
-            width: '55%',
-            aspectRatio: '1',
-            opacity: 0.06,
-            filter: 'grayscale(100%)',
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
           }}
-          crossOrigin="anonymous"
         />
+
+        {/* Top edge */}
+        <div
+          className="absolute top-0 left-0 right-0"
+          style={{
+            height: '2px',
+            background: `linear-gradient(90deg, transparent 0%, ${ORANGE_DARK} 10%, ${ORANGE} 50%, ${ORANGE_DARK} 90%, transparent 100%)`,
+          }}
+        />
+
+        {/* Logo MC centered */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="text-center">
+            <p
+              className="font-black uppercase leading-none"
+              style={{
+                fontSize: 'clamp(16px, 6.5cqi, 34px)',
+                letterSpacing: '0.1em',
+                background: ORANGE_GRADIENT,
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                filter: 'drop-shadow(0 1px 0 rgba(0,0,0,0.6)) drop-shadow(0 2px 3px rgba(0,0,0,0.4))',
+              }}
+            >
+              Alterados
+            </p>
+            <p
+              className="font-black uppercase leading-none"
+              style={{
+                fontSize: 'clamp(8px, 3cqi, 16px)',
+                letterSpacing: '0.4em',
+                background: ORANGE_GRADIENT,
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                filter: 'drop-shadow(0 1px 0 rgba(0,0,0,0.5))',
+                marginTop: '3%',
+              }}
+            >
+              M C
+            </p>
+          </div>
+        </div>
       </div>
 
-      {/* Content — horizontal layout: QR left, info right */}
-      <div className="relative h-full flex items-center" style={{ padding: '4% 5%' }}>
-        {/* Left: QR code — big */}
-        <div className="shrink-0 flex flex-col items-center gap-[3%]">
-          <div
-            className="rounded-sm"
+      {/* Bottom zone — white with medical info */}
+      <div
+        className="absolute left-0 right-0 bottom-0 bg-white"
+        style={{ top: '38%' }}
+      >
+        {/* Watermark on white */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <img
+            src="/nacionalmc.jpeg"
+            alt=""
+            className="rounded-full object-cover"
             style={{
-              padding: 'clamp(4px, 1.2cqi, 8px)',
-              background: 'linear-gradient(135deg, rgba(212,165,74,0.12), rgba(180,132,50,0.06))',
-              border: '1px solid rgba(212,165,74,0.4)',
-              boxShadow: '0 4px 16px rgba(0,0,0,0.06), inset 0 1px 0 rgba(212,165,74,0.1)',
+              width: '38%',
+              aspectRatio: '1',
+              opacity: 0.07,
+              filter: 'grayscale(100%)',
             }}
-          >
-            <div className="bg-white rounded-[2px]" style={{ padding: 'clamp(3px, 1cqi, 7px)' }}>
+            crossOrigin="anonymous"
+          />
+        </div>
+
+        {/* Bottom edge orange band */}
+        <div
+          className="absolute bottom-0 left-0 right-0"
+          style={{
+            height: '4%',
+            background: `linear-gradient(180deg, ${ORANGE_LIGHT} 0%, ${ORANGE} 50%, ${ORANGE_DARK} 100%)`,
+            boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.2)',
+          }}
+        />
+
+        {/* Content */}
+        <div
+          className="relative h-full flex items-center"
+          style={{ padding: '4% 5% 7% 5%' }}
+        >
+          {/* QR */}
+          <div className="shrink-0 flex flex-col items-center" style={{ gap: '4%' }}>
+            <div
+              className="bg-white"
+              style={{
+                padding: 'clamp(2px, 0.8cqi, 5px)',
+                border: `1px solid ${ORANGE}`,
+              }}
+            >
               <QRCodeSVG
                 value={publicUrl}
                 level="H"
@@ -84,89 +148,100 @@ export function CredentialBack({ profile, className }: CredentialBackProps) {
                 className="credential-qr-lg"
               />
             </div>
+            <p
+              className="uppercase tracking-[0.15em] text-zinc-600 leading-none text-center"
+              style={{ fontSize: 'clamp(4px, 1.2cqi, 6px)' }}
+            >
+              Verificar
+            </p>
           </div>
-          <p
-            className="uppercase tracking-[0.15em] text-zinc-600 leading-none text-center"
-            style={{ fontSize: 'clamp(4px, 1.2cqi, 6px)' }}
-          >
-            Escanea para verificar
-          </p>
-        </div>
 
-        {/* Vertical divider */}
-        <div
-          className="self-stretch mx-[4%]"
-          style={{ width: '1px', background: 'linear-gradient(180deg, transparent, rgba(212,165,74,0.25) 20%, rgba(212,165,74,0.25) 80%, transparent)' }}
-        />
-
-        {/* Right: emergency info — stacked, larger */}
-        <div className="flex-1 min-w-0 flex flex-col justify-center gap-[12%]">
-          {/* Club name */}
-          <p
-            className="font-black uppercase leading-none"
+          {/* Vertical orange divider */}
+          <div
+            className="self-stretch mx-[5%]"
             style={{
-              fontSize: 'clamp(8px, 2.8cqi, 14px)',
-              letterSpacing: '0.15em',
-              background: 'linear-gradient(180deg, #D4A54A 0%, #B48432 40%, #8B6914 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
+              width: '2px',
+              background: `linear-gradient(180deg, transparent 0%, ${ORANGE} 20%, ${ORANGE} 80%, transparent 100%)`,
             }}
-          >
-            Alterados MC
-          </p>
+          />
 
-          {/* Blood type — prominent */}
-          {profile.blood_type && (
-            <div>
-              <p
-                className="uppercase tracking-[0.1em] text-zinc-500 leading-none"
-                style={{ fontSize: 'clamp(5px, 1.6cqi, 8px)', marginBottom: 'clamp(2px, 0.8cqi, 5px)' }}
-              >
-                Tipo de sangre
-              </p>
-              <span
-                className="inline-block font-black rounded-sm"
-                style={{
-                  fontSize: 'clamp(14px, 5cqi, 26px)',
-                  padding: 'clamp(1px, 0.4cqi, 3px) clamp(6px, 2cqi, 14px)',
-                  background: 'linear-gradient(135deg, rgba(220,38,38,0.1), rgba(185,28,28,0.06))',
-                  border: '1px solid rgba(220,38,38,0.4)',
-                  color: '#DC2626',
-                  letterSpacing: '0.05em',
-                }}
-              >
-                {profile.blood_type}
-              </span>
-            </div>
-          )}
-
-          {/* Emergency contact */}
-          {(profile.emergency_contact_name || profile.emergency_contact_phone) && (
-            <div>
-              <p
-                className="uppercase font-bold tracking-[0.12em] leading-none"
-                style={{ fontSize: 'clamp(5px, 1.5cqi, 7px)', color: '#8B6914', marginBottom: 'clamp(2px, 0.6cqi, 4px)' }}
-              >
-                En caso de accidente
-              </p>
-              {profile.emergency_contact_name && (
+          {/* Medical info */}
+          <div className="flex-1 min-w-0 flex flex-col justify-center" style={{ gap: '8%' }}>
+            {/* Blood type — prominent */}
+            {profile.blood_type && (
+              <div>
                 <p
-                  className="text-zinc-700 leading-tight"
-                  style={{ fontSize: 'clamp(7px, 2.2cqi, 12px)' }}
+                  className="uppercase font-bold tracking-[0.15em] text-zinc-500 leading-none"
+                  style={{
+                    fontSize: 'clamp(5px, 1.6cqi, 8px)',
+                    marginBottom: 'clamp(2px, 0.8cqi, 5px)',
+                  }}
                 >
-                  {profile.emergency_contact_name}
+                  Tipo de sangre
+                </p>
+                <span
+                  className="inline-block font-black"
+                  style={{
+                    fontSize: 'clamp(16px, 6cqi, 30px)',
+                    padding: 'clamp(2px, 0.6cqi, 4px) clamp(8px, 2.5cqi, 16px)',
+                    background: ORANGE,
+                    color: 'white',
+                    letterSpacing: '0.05em',
+                    boxShadow: `inset 0 -2px 0 ${ORANGE_DARK}`,
+                  }}
+                >
+                  {profile.blood_type}
+                </span>
+              </div>
+            )}
+
+            {/* Emergency contact */}
+            {(profile.emergency_contact_name || profile.emergency_contact_phone) && (
+              <div>
+                <p
+                  className="uppercase font-bold tracking-[0.15em] leading-none"
+                  style={{
+                    fontSize: 'clamp(5px, 1.6cqi, 8px)',
+                    color: ORANGE_DARK,
+                    marginBottom: 'clamp(2px, 0.8cqi, 5px)',
+                  }}
+                >
+                  Contacto de emergencia
+                </p>
+                {profile.emergency_contact_name && (
+                  <p
+                    className="font-bold uppercase text-zinc-900 leading-tight"
+                    style={{
+                      fontSize: 'clamp(8px, 2.8cqi, 14px)',
+                      letterSpacing: '0.03em',
+                    }}
+                  >
+                    {profile.emergency_contact_name}
+                  </p>
+                )}
+                {profile.emergency_contact_phone && (
+                  <p
+                    className="font-bold text-zinc-900 leading-tight"
+                    style={{
+                      fontSize: 'clamp(9px, 3cqi, 15px)',
+                      letterSpacing: '0.05em',
+                    }}
+                  >
+                    {profile.emergency_contact_phone}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Fallback if no medical info */}
+            {!profile.blood_type &&
+              !profile.emergency_contact_name &&
+              !profile.emergency_contact_phone && (
+                <p className="text-xs text-zinc-400 italic">
+                  Sin información médica registrada
                 </p>
               )}
-              {profile.emergency_contact_phone && (
-                <p
-                  className="text-zinc-500 leading-tight"
-                  style={{ fontSize: 'clamp(7px, 2.2cqi, 12px)' }}
-                >
-                  {profile.emergency_contact_phone}
-                </p>
-              )}
-            </div>
-          )}
+          </div>
         </div>
       </div>
     </div>

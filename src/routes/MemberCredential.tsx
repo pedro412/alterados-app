@@ -6,8 +6,10 @@ import { useProtectedContext } from '@/hooks/useProtectedContext';
 import { Button } from '@/components/ui/button';
 import { CredentialFront } from '@/components/credential/CredentialFront';
 import { CredentialBack } from '@/components/credential/CredentialBack';
+import { CredentialFrontV1 } from '@/components/credential/CredentialFrontV1';
+import { CredentialBackV1 } from '@/components/credential/CredentialBackV1';
 import { CredentialPVC } from '@/components/credential/CredentialPVC';
-import type { CredentialPVCHandle } from '@/components/credential/CredentialPVC';
+import type { CredentialPVCHandle, CredentialVariant } from '@/components/credential/CredentialPVC';
 import type { Profile } from '@/types';
 
 export function MemberCredential() {
@@ -18,7 +20,11 @@ export function MemberCredential() {
   const [loading, setLoading] = useState(true);
   const [format, setFormat] = useState<'print' | 'pvc'>('print');
   const [activeSide, setActiveSide] = useState<'front' | 'back'>('front');
+  const [variant, setVariant] = useState<CredentialVariant>('v2');
   const pvcRef = useRef<CredentialPVCHandle>(null);
+
+  const FrontComponent = variant === 'v1' ? CredentialFrontV1 : CredentialFront;
+  const BackComponent = variant === 'v1' ? CredentialBackV1 : CredentialBack;
 
   const canAccess =
     isAdmin ||
@@ -92,28 +98,58 @@ export function MemberCredential() {
           </div>
         </div>
 
+        {/* Variant toggle (V1 / V2) */}
+        <div>
+          <p className="text-xs text-muted-foreground mb-1.5">Diseño</p>
+          <div className="flex rounded-lg border border-border overflow-hidden">
+            <button
+              onClick={() => setVariant('v1')}
+              className={`flex-1 py-2 text-sm font-medium transition-colors cursor-pointer ${
+                variant === 'v1'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-background text-muted-foreground hover:bg-accent'
+              }`}
+            >
+              V1 · Clásica
+            </button>
+            <button
+              onClick={() => setVariant('v2')}
+              className={`flex-1 py-2 text-sm font-medium transition-colors cursor-pointer ${
+                variant === 'v2'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-background text-muted-foreground hover:bg-accent'
+              }`}
+            >
+              V2 · MC
+            </button>
+          </div>
+        </div>
+
         {/* Format toggle */}
-        <div className="flex rounded-lg border border-border overflow-hidden">
-          <button
-            onClick={() => setFormat('print')}
-            className={`flex-1 py-2 text-sm font-medium transition-colors cursor-pointer ${
-              format === 'print'
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-background text-muted-foreground hover:bg-accent'
-            }`}
-          >
-            Impresion
-          </button>
-          <button
-            onClick={() => setFormat('pvc')}
-            className={`flex-1 py-2 text-sm font-medium transition-colors cursor-pointer ${
-              format === 'pvc'
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-background text-muted-foreground hover:bg-accent'
-            }`}
-          >
-            PVC
-          </button>
+        <div>
+          <p className="text-xs text-muted-foreground mb-1.5">Formato</p>
+          <div className="flex rounded-lg border border-border overflow-hidden">
+            <button
+              onClick={() => setFormat('print')}
+              className={`flex-1 py-2 text-sm font-medium transition-colors cursor-pointer ${
+                format === 'print'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-background text-muted-foreground hover:bg-accent'
+              }`}
+            >
+              Impresion
+            </button>
+            <button
+              onClick={() => setFormat('pvc')}
+              className={`flex-1 py-2 text-sm font-medium transition-colors cursor-pointer ${
+                format === 'pvc'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-background text-muted-foreground hover:bg-accent'
+              }`}
+            >
+              PVC
+            </button>
+          </div>
         </div>
 
         {/* Card preview */}
@@ -147,15 +183,15 @@ export function MemberCredential() {
             <div className="flex justify-center">
               <div className="w-full max-w-[380px]">
                 {activeSide === 'front' ? (
-                  <CredentialFront profile={member} />
+                  <FrontComponent profile={member} />
                 ) : (
-                  <CredentialBack profile={member} />
+                  <BackComponent profile={member} />
                 )}
               </div>
             </div>
           </div>
         ) : (
-          <CredentialPVC ref={pvcRef} profile={member} />
+          <CredentialPVC ref={pvcRef} profile={member} variant={variant} />
         )}
 
         {/* Action buttons */}
@@ -177,10 +213,10 @@ export function MemberCredential() {
       {/* Print-only content — side by side so you fold in half */}
       <div className="credential-print hidden print:flex print:flex-row print:items-start print:justify-center print:gap-0 print:pt-8">
         <div style={{ width: '85.6mm', height: '54mm' }}>
-          <CredentialFront profile={member} />
+          <FrontComponent profile={member} />
         </div>
         <div style={{ width: '85.6mm', height: '54mm' }}>
-          <CredentialBack profile={member} />
+          <BackComponent profile={member} />
         </div>
       </div>
     </>

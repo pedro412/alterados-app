@@ -2,11 +2,15 @@ import { useRef, useImperativeHandle, forwardRef, useState } from 'react';
 import { toPng } from 'html-to-image';
 import { CredentialFront } from './CredentialFront';
 import { CredentialBack } from './CredentialBack';
+import { CredentialFrontV1 } from './CredentialFrontV1';
+import { CredentialBackV1 } from './CredentialBackV1';
 import type { Profile } from '@/types';
 
 // CR-80 at 300 DPI
 const CARD_W = 1012;
 const CARD_H = 638;
+
+export type CredentialVariant = 'v1' | 'v2';
 
 export interface CredentialPVCHandle {
   downloadFront: (filename?: string) => void;
@@ -15,6 +19,7 @@ export interface CredentialPVCHandle {
 
 interface CredentialPVCProps {
   profile: Profile;
+  variant?: CredentialVariant;
 }
 
 async function captureElement(el: HTMLElement, filename: string) {
@@ -31,44 +36,53 @@ async function captureElement(el: HTMLElement, filename: string) {
 }
 
 export const CredentialPVC = forwardRef<CredentialPVCHandle, CredentialPVCProps>(
-  ({ profile }, ref) => {
+  ({ profile, variant = 'v2' }, ref) => {
     const frontRef = useRef<HTMLDivElement>(null);
     const backRef = useRef<HTMLDivElement>(null);
     const [downloading, setDownloading] = useState(false);
 
     useImperativeHandle(ref, () => ({
-      async downloadFront(filename = 'credencial-frente.png') {
+      async downloadFront(filename) {
         if (!frontRef.current || downloading) return;
         setDownloading(true);
         try {
-          await captureElement(frontRef.current, filename);
+          await captureElement(
+            frontRef.current,
+            filename ?? `credencial-frente-${variant}.png`
+          );
         } finally {
           setDownloading(false);
         }
       },
-      async downloadBack(filename = 'credencial-reverso.png') {
+      async downloadBack(filename) {
         if (!backRef.current || downloading) return;
         setDownloading(true);
         try {
-          await captureElement(backRef.current, filename);
+          await captureElement(
+            backRef.current,
+            filename ?? `credencial-reverso-${variant}.png`
+          );
         } finally {
           setDownloading(false);
         }
       },
     }));
 
+    const Front = variant === 'v1' ? CredentialFrontV1 : CredentialFront;
+    const Back = variant === 'v1' ? CredentialBackV1 : CredentialBack;
+
     return (
       <div className="space-y-4">
         <div>
           <p className="text-sm text-muted-foreground mb-2">Frente (PVC 300 DPI)</p>
           <div className="w-full max-w-sm rounded-lg border border-zinc-300 overflow-hidden">
-            <CredentialFront profile={profile} />
+            <Front profile={profile} />
           </div>
         </div>
         <div>
           <p className="text-sm text-muted-foreground mb-2">Reverso (PVC 300 DPI)</p>
           <div className="w-full max-w-sm rounded-lg border border-zinc-300 overflow-hidden">
-            <CredentialBack profile={profile} />
+            <Back profile={profile} />
           </div>
         </div>
 
@@ -84,7 +98,7 @@ export const CredentialPVC = forwardRef<CredentialPVCHandle, CredentialPVCProps>
           }}
         >
           <div ref={frontRef} style={{ width: CARD_W, height: CARD_H }}>
-            <CredentialFront profile={profile} className="!rounded-none" />
+            <Front profile={profile} className="!rounded-none" />
           </div>
         </div>
         <div
@@ -98,7 +112,7 @@ export const CredentialPVC = forwardRef<CredentialPVCHandle, CredentialPVCProps>
           }}
         >
           <div ref={backRef} style={{ width: CARD_W, height: CARD_H }}>
-            <CredentialBack profile={profile} className="!rounded-none" />
+            <Back profile={profile} className="!rounded-none" />
           </div>
         </div>
       </div>
